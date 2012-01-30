@@ -107,7 +107,7 @@ ldl_matrix new_ldl_matrix(int max_dim, int max_nonzer){
     ldl.num_cols = 0;
     ldl.num_rows = 0;
     ldl.D = new_host_darray(max_dim);
-    ldl.Lp = new_host_iarray(max_dim);
+    ldl.Lp = new_host_iarray(max_dim + 1);
     ldl.Li = new_host_iarray(max_nonzer);
     ldl.Lx = new_host_darray(max_nonzer);
     ldl.Lnz = new_host_iarray(max_dim);

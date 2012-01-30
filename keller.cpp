@@ -1679,7 +1679,7 @@ void genAnotherInputSet(int vector_dim, int inputSetDim, double* inputSet) {
 void test_get_ldl33_up_from_ldl_l_upper(){
     int cols = 4;
     int rows = 4;
-    ldl_matrix ldlm = new_ldl_matrix(4, 6);
+    ldl_matrix ldlm = new_ldl_matrix(4, 10);
     
     
     ldlm.num_cols = cols;
@@ -1689,7 +1689,7 @@ void test_get_ldl33_up_from_ldl_l_upper(){
         ldlm.Lp[i] = elts_num;
         for (int j = i; j < rows; j++) {            
             ldlm.Li[elts_num] = j;
-            ldlm.Lx[elts_num] = rand();            
+            ldlm.Lx[elts_num] = (double)elts_num;            
             elts_num++;
         }
     }
@@ -1697,12 +1697,15 @@ void test_get_ldl33_up_from_ldl_l_upper(){
     
     std::cout << "Diag part\n";
     for (int i = 0; i < ldlm.num_cols; i++) {
-        std::cout << i << " " << ldlm.D[i] << "\n";
+        ldlm.D[i] = i;
     }
     
     print_ldl_matrix(ldlm);
     
     
+    ldl_matrix ldl33 = get_ldl33_up_from_ldl_l_upper(ldlm, 1);
+    
+    print_ldl_matrix(ldl33);
 }
 
 
@@ -1710,6 +1713,6 @@ int main(int argc, char **argv) {
     //prepare_matrix();//<int, double>();
     //test_simplex_projection();
     
-    test_get_ldl33_up_from_ldl_l_upper();
+    //test_get_ldl33_up_from_ldl_l_upper();
 }
 

@@ -181,7 +181,8 @@ struct pkt_matrix : public matrix_shape
 ////////////////////////////////////////////////////////////////////////////////
 ldl_matrix new_ldl_matrix(int max_dim, int max_nonzer);
 
-
+double* new_host_darray(const size_t N);
+int* new_host_iarray(const size_t N);
 
 
 //template <typename int, typename double>
@@ -226,8 +227,7 @@ void delete_host_matrix(hyb_matrix& hyb);
 //template <typename int, typename double>
 void delete_host_matrix(pkt_matrix& pm);
 
-double* new_host_darray(const size_t N);
-int* new_host_iarray(const size_t N);
+
 
 void delete_host_array(double *p);
 

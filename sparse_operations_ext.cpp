@@ -176,6 +176,9 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
             }
         }
     }
+    
+    std::cout << "Elements in L33 = " << elemets_number << "\n";
+    
     int ldl33_max_dim = ldl.num_rows - row_start_idx;
     //construct new ldl matrix with upper triangular form
     ldl_matrix ldl33_up = new_ldl_matrix(ldl33_max_dim, elemets_number);
@@ -202,6 +205,8 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
     for(int diag_idx = row_start_idx; diag_idx < ldl.num_cols; diag_idx++){
         ldl33_up.D[diag_idx - row_start_idx] = ldl.D[diag_idx];
     }
+    
+    return ldl33_up;
 }
 
 /***
