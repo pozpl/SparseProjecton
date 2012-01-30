@@ -1,0 +1,17 @@
+/build/Debug/
+/dist/Debug/
+/dist/Release/
+/nbproject/private/
+/pozpl@quater.dvo.ru/build/.svn/
+/pozpl@quater.dvo.ru/build/Debug/
+/pozpl@quater.dvo.ru/build/Release/
+/pozpl@quater.dvo.ru/dist/.svn/
+/pozpl@quater.dvo.ru/dist/Debug/
+/pozpl@quater.dvo.ru/dist/Release/
+/build/
+/dist/
+/x_vect.mat
+/z_decrese_dynamic
+/z_decrese_dynamic.eps
+/basis.csr
+/callgrind.out.312
