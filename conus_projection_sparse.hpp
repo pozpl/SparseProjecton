@@ -81,5 +81,6 @@ void evalGrammMtxPart(csr_matrix& basis_t, csr_matrix& gramm_parted);
 void updateGrammMtxPartTriagForm_impr(csr_matrix& basis,csr_matrix& gramm_parted);
 void evalGrammMtxPartTriangForm(csr_matrix& basis_t, csr_matrix& gramm_parted);
 void downgradeGrammMtxPart(csr_matrix& gramm_parted, int col_to_del_idx);
+ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32, double d22);
 #endif	/* _MIN_NORM_CONE_SPARSE_HPP */
 

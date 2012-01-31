@@ -1699,13 +1699,110 @@ void test_get_ldl33_up_from_ldl_l_upper(){
     for (int i = 0; i < ldlm.num_cols; i++) {
         ldlm.D[i] = i;
     }
-    
+    ldl_matrix ldlmt = new_ldl_matrix(4, 10);
+    ldl_transpose(ldlm, ldlmt);
     print_ldl_matrix(ldlm);
     
     
-    ldl_matrix ldl33 = get_ldl33_up_from_ldl_l_upper(ldlm, 1);
+    ldl_matrix ldl33 = get_ldl33_up_from_ldl_l_upper(ldlmt, 1);
     
     print_ldl_matrix(ldl33);
+}
+
+
+void test_recompute_l33_d33_for_ldl_col_del(){
+    
+    int cols = 4;
+    int rows = 4;
+    ldl_matrix ldlm = new_ldl_matrix(cols, 10);
+    
+    
+    ldlm.num_cols = cols;
+    ldlm.num_rows = rows;
+    int elts_num = 0;
+    for (int i = 0; i < cols - 1; i++) {
+        ldlm.Lp[i] = elts_num;
+        for (int j = i + 1; j < rows; j++) {            
+            ldlm.Li[elts_num] = j;
+            ldlm.Lx[elts_num] = rand2(1,100);   
+            ldlm.num_nonzeros++;
+            elts_num++;
+        }
+    }
+    ldlm.Lp[cols - 1] = elts_num;
+    
+    std::cout << "Diag part\n";
+    for (int i = 0; i < ldlm.num_cols; i++) {
+        ldlm.D[i] = i + 1;
+    }
+    
+    std::cout << "LDL\n";
+    print_ldl_matrix(ldlm);
+    
+    
+    ldl_matrix ldlmt = new_ldl_matrix(cols, 10);
+    ldl_transpose(ldlm, ldlmt);
+    
+    std::cout << "LDL^t  "<< ldlmt.num_nonzeros << "\n";
+    print_ldl_matrix(ldlmt);
+    
+    ldl_matrix ldl33_up = get_ldl33_up_from_ldl_l_upper(ldlmt, 1);
+    ldl_matrix ldl33_low = new_ldl_matrix(ldl33_up.num_cols, ldl33_up.num_nonzeros);
+    ldl_transpose(ldl33_up, ldl33_low);
+    
+    std::cout << "LDL33_low\n";
+    print_ldl_matrix(ldl33_low);
+    
+    
+    int l32_id = 0;
+    int l32_dem = ldlm.num_rows - l32_id;
+    double* dense_row = new_host_darray(l32_dem);
+    get_ldl_dense_row_from_l_upper(ldlmt, l32_id, dense_row);
+    
+    std::cout<<"l32 \n";
+    printMatrixCPU(1, l32_dem, dense_row);
+    
+    ldl_matrix ldl33_new = recompute_l33_d33_for_ldl_col_del(ldl33_low, dense_row, ldlmt.D[l32_id]);
+    
+    
+    std::cout << "LDL33 recomputed\n";
+    print_ldl_matrix(ldl33_new);
+}
+    
+
+void try_ldl_engine(){
+   const int N = 10;
+    const int ANZ = 19;
+    const int LNZ = 13;
+     int    Ap [N+1] = {0, 1, 2, 3, 4,   6, 7,   9,   11,      15,     ANZ},
+           Ai [ANZ] = {0, 1, 2, 3, 1,4, 5, 4,6, 4,7, 0,4,7,8, 1,4,6,9 } ;
+    double Ax [ANZ] = {1.7, 1., 1.5, 1.1, .02,2.6, 1.2, .16,1.3, .09,1.6,
+                     .13,.52,.11,1.4, .01,.53,.56,3.1},
+           b [N] = {.287, .22, .45, .44, 2.486, .72, 1.55, 1.424, 1.621, 3.759};
+    double Lx [LNZ], D [N], Y [N] ;
+    int Li [LNZ], Lp [N+1], Parent [N], Lnz [N], Flag [N], Pattern [N], d, i ;
+
+    /* factorize A into LDL' (P and Pinv not used) */
+    ldl_symbolic (N, Ap, Ai, Lp, Parent, Lnz, Flag, NULL, NULL) ;
+    printf ("Nonzeros in L, excluding diagonal: %d\n", Lp [N]) ;
+    d = ldl_numeric (N, Ap, Ai, Ax, Lp, Parent, Lnz, Li, Lx, D, Y, Pattern,
+        Flag, NULL, NULL) ;
+    
+    for(int i = 0; i < N+1; i++){
+        std::cout << " " << Lp[i] << "";
+    }
+    std::cout<<"\n";
+    for (int i = 0; i < N; i++) {
+        for (int j = Lp[i]; j < Lp[i + 1]; j++) {
+            //printf("%i %i %f \n", i, csr.Aj[j], csr.Ax[j]);
+            std::cout << i << " " << Li[j] << " " << Lx[j] << "\n";
+        }
+    }
+    std::cout << "Diag part\n";
+    for (int i = 0; i < N; i++) {
+        std::cout << i << " " << D[i] << "\n";
+    }
+
 }
 
 
@@ -1714,5 +1811,8 @@ int main(int argc, char **argv) {
     //test_simplex_projection();
     
     //test_get_ldl33_up_from_ldl_l_upper();
+    test_recompute_l33_d33_for_ldl_col_del();
+    
+    //try_ldl_engine();
 }
 

@@ -2194,33 +2194,47 @@ a2a2_vost = L33 * D33 * L33'
 [L1, D1] = ldlt(a2a2)
 a2a2_vost = L1 * D1 * L1'
  */
-ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, int* l32, int d22){
+ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32, double d22){
+    
     ldl_matrix ldl33_new = new_ldl_matrix(ldl33_old.MAX_D_LP_SIZE, ldl33_old.num_nonzeros * 3);//this is low triagonal matrix!!!
+    ldl33_new.num_cols = ldl33_old.num_cols;
+    ldl33_new.num_rows = ldl33_old.num_rows;
     
-    double *w = new_host_darray(ldl33_old.num_rows);
-    get_ldl_dense_column_from_l_low(ldl33_old, 0, w);
+    
+    double *w = new_host_darray(ldl33_old.num_rows + 1);
+    cblas_dcopy(ldl33_old.num_rows + 1, l32, 1, w,1);
+    std::cout << "W\n";
+    printMatrixCPU(1, ldl33_old.num_rows + 1, w);
+    //get_ldl_dense_column_from_l_low(ldl33_old, 0, w);
     double sqrt_d22 = sqrt(d22);
-    cblas_dscal(ldl33_old.num_rows, sqrt_d22, w, 1);
+    cblas_dscal(ldl33_old.num_rows + 1, sqrt_d22, w, 1);
     
-    double* v = new_host_darray(ldl33_old.num_rows);
-    cblas_dcopy(ldl33_old.num_rows, w, 1, v, 1);
-    ldl_ltsolve(ldl33_old.num_rows, v, ldl33_old.Lp, ldl33_old.Li, ldl33_old.Lx);
+    double* v = new_host_darray(ldl33_old.num_rows + 1);
+    cblas_dcopy(ldl33_old.num_rows + 1, w, 1, v, 1);
+    ldl_lsolve(ldl33_old.num_rows + 1, v, ldl33_old.Lp, ldl33_old.Li, ldl33_old.Lx);
+    
+    std::cout << "V\n";
+    printMatrixCPU(1, ldl33_old.num_rows + 1, v);
     
     double alpha = 1.0;
     int m = ldl33_old.num_cols;
     
     double* ldl33_col = new_host_darray(ldl33_old.num_rows);
-    
-    for(int i = 0; i > m - 1; i++){
+    std::cout << "Start L33 recompution with m="<< m << "\n";
+    for(int i = 0; i < m ; i++){
         double alpha_ = alpha + v[i] * v[i] / ldl33_old.D[i];
         double gamma = v[i]/(alpha_ * ldl33_old.D[i]);
         ldl33_new.D[i] = (alpha_ / alpha) * ldl33_old.D[i];
         alpha = alpha_;
         
         get_ldl_dense_column_from_l_low(ldl33_old, i, ldl33_col);
+        //std::cout << "ldl33_col before\n";
+        //printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
         cblas_daxpy((m - i), -v[i], &ldl33_col[i+1], 1, &w[i + 1],1);
         cblas_daxpy((m - i), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
-        add_last_col_to_ldl_l_low(ldl33_new, ldl33_col, m - i);
+        std::cout << "ldl33_col after\n";
+        printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
+        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[ i], m - i);
     }
     
     return ldl33_new;

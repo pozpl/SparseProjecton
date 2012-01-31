@@ -149,8 +149,8 @@ void get_ldl_dense_column_from_l_low(const ldl_matrix& ldl, int col_number, doub
         dense_column[i] = 0.0;
     }
     
-    for(int nonz_i=ldl.Li[col_number]; nonz_i < ldl.Li[col_number+1]; nonz_i++ ){
-        dense_column[ldl.Lp[nonz_i]] = ldl.Lx[nonz_i];
+    for(int nonz_i=ldl.Lp[col_number]; nonz_i < ldl.Lp[col_number+1]; nonz_i++ ){
+        dense_column[ldl.Li[nonz_i]] = ldl.Lx[nonz_i];
     }
 }
 
@@ -214,11 +214,13 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
  * i.e. build l33 part
  */
 void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int dens_col_dim){
-    //get adress to write information
-    int ldl_li_index_to_insert = ldl.Lp[ ldl.num_cols ];
     
-    ldl.num_cols++;
-    ldl.Lp[ldl.num_cols] = ldl_li_index_to_insert;
+    //get adress to write information
+    int active_col_id = ldl.num_cols - dens_col_dim;
+    ldl.Lp[ active_col_id ] = ldl.num_nonzeros;
+    ldl.Lp[ active_col_id + 1] = ldl.num_nonzeros;
+    
+    int ldl_li_index_to_insert = ldl.num_nonzeros;
     
     for(int den_col_iter = 0; den_col_iter < dens_col_dim; den_col_iter++){
         if(dense_column[den_col_iter] != 0){
@@ -227,7 +229,7 @@ void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int dens_c
             
             ldl_li_index_to_insert++;
             ldl.num_nonzeros++;
-            ldl.Lp[ldl.num_cols]++;
+            ldl.Lp[active_col_id + 1]++;
         }
     }
 }
