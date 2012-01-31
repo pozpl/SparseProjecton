@@ -2201,20 +2201,20 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
     ldl33_new.num_rows = ldl33_old.num_rows;
     
     
-    double *w = new_host_darray(ldl33_old.num_rows + 1);
-    cblas_dcopy(ldl33_old.num_rows + 1, l32, 1, w,1);
+    double *w = new_host_darray(ldl33_old.num_rows);
+    cblas_dcopy(ldl33_old.num_rows, l32, 1, w,1);
     std::cout << "W\n";
-    printMatrixCPU(1, ldl33_old.num_rows + 1, w);
+    printMatrixCPU(1, ldl33_old.num_rows, w);
     //get_ldl_dense_column_from_l_low(ldl33_old, 0, w);
     double sqrt_d22 = sqrt(d22);
-    cblas_dscal(ldl33_old.num_rows + 1, sqrt_d22, w, 1);
+    cblas_dscal(ldl33_old.num_rows, sqrt_d22, w, 1);
     
-    double* v = new_host_darray(ldl33_old.num_rows + 1);
-    cblas_dcopy(ldl33_old.num_rows + 1, w, 1, v, 1);
-    ldl_lsolve(ldl33_old.num_rows + 1, v, ldl33_old.Lp, ldl33_old.Li, ldl33_old.Lx);
+    double* v = new_host_darray(ldl33_old.num_rows);
+    cblas_dcopy(ldl33_old.num_rows , w, 1, v, 1);
+    ldl_lsolve(ldl33_old.num_rows, v, ldl33_old.Lp, ldl33_old.Li, ldl33_old.Lx);
     
     std::cout << "V\n";
-    printMatrixCPU(1, ldl33_old.num_rows + 1, v);
+    printMatrixCPU(1, ldl33_old.num_rows, v);
     
     double alpha = 1.0;
     int m = ldl33_old.num_cols;
@@ -2228,13 +2228,15 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
         alpha = alpha_;
         
         get_ldl_dense_column_from_l_low(ldl33_old, i, ldl33_col);
-        //std::cout << "ldl33_col before\n";
-        //printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
+        
+        std::cout << "ldl33_col before\n";
+        printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
+        
         cblas_daxpy((m - i), -v[i], &ldl33_col[i+1], 1, &w[i + 1],1);
         cblas_daxpy((m - i), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
         std::cout << "ldl33_col after\n";
         printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
-        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[ i], m - i);
+        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i + 1], m - i);
     }
     
     return ldl33_new;

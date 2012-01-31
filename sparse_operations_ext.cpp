@@ -160,7 +160,7 @@ void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double
         for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {           
             //std::cout << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
             if(ldl.Li[j] == row_index){
-                dense_row[i] = ldl.Lx[j];
+                dense_row[i - 1] = ldl.Lx[j];
             }
         }
     }
@@ -1219,7 +1219,8 @@ void csr_transpose(const int * Ap,
         //}
         temp[Aj[i]]++;
     }
-
+    
+    
     Bp[0] = 0;
     for (int i = 0; i < num_cols; i++) {
         Bp[i + 1] = Bp[i] + temp[i]; //cumsum number column entries to form Bp

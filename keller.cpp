@@ -1730,6 +1730,7 @@ void test_recompute_l33_d33_for_ldl_col_del(){
         }
     }
     ldlm.Lp[cols - 1] = elts_num;
+    ldlm.Lp[cols] = elts_num; //This is bug, but I will dill with it
     
     std::cout << "Diag part\n";
     for (int i = 0; i < ldlm.num_cols; i++) {
@@ -1738,12 +1739,15 @@ void test_recompute_l33_d33_for_ldl_col_del(){
     
     std::cout << "LDL\n";
     print_ldl_matrix(ldlm);
-    
+    //for(int i = 0; i < ldlm.num_nonzeros; i++){ std::cout << ldlm.Li[i] << " ";   }
     
     ldl_matrix ldlmt = new_ldl_matrix(cols, 10);
     ldl_transpose(ldlm, ldlmt);
     
-    std::cout << "LDL^t  "<< ldlmt.num_nonzeros << "\n";
+    std::cout << "LDL^t  "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
+    //printMatrixCPU(1, ldlmt.num_cols+1, ldlmt.Lx);
+    //for(int i = 0; i < ldlmt.num_nonzeros; i++){ std::cout << ldlmt.Li[i] << " ";   }
+    //std::cout << "\n";
     print_ldl_matrix(ldlmt);
     
     ldl_matrix ldl33_up = get_ldl33_up_from_ldl_l_upper(ldlmt, 1);
