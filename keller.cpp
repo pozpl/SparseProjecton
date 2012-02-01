@@ -1759,7 +1759,7 @@ void test_recompute_l33_d33_for_ldl_col_del(){
     
     
     int l32_id = 0;
-    int l32_dem = ldlm.num_rows - l32_id;
+    int l32_dem = ldlm.num_rows - (l32_id + 1);
     double* dense_row = new_host_darray(l32_dem);
     get_ldl_dense_row_from_l_upper(ldlmt, l32_id, dense_row);
     

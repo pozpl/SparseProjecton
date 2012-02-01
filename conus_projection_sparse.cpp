@@ -2229,14 +2229,19 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
         
         get_ldl_dense_column_from_l_low(ldl33_old, i, ldl33_col);
         
-        std::cout << "ldl33_col before\n";
-        printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
-        
-        cblas_daxpy((m - i), -v[i], &ldl33_col[i+1], 1, &w[i + 1],1);
-        cblas_daxpy((m - i), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
+        std::cout << "ldl33_col before i=" << i << "\n";
+        printMatrixCPU(1, (m- i -1), &ldl33_col[i+1]);
+        std::cout << "W after all\n";
+        printMatrixCPU(1, (m- i -1), &w[i + 1]);
+        std::cout << "V after all -v[" << i << "] = " << -v[i] <<"\n";
+        printMatrixCPU(1, ldl33_old.num_cols, v);
+        cblas_daxpy((m- i -1), -v[i], &ldl33_col[i+1], 1, &w[i + 1],1);
+        std::cout << "W after all\n";
+        printMatrixCPU(1, ldl33_old.num_cols, w);
+        cblas_daxpy((m- i -1), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
         std::cout << "ldl33_col after\n";
         printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
-        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i + 1], m - i);
+        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i + 1], i,(m- i -1));
     }
     
     return ldl33_new;

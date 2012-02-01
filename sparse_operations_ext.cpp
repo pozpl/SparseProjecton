@@ -160,7 +160,7 @@ void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double
         for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {           
             //std::cout << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
             if(ldl.Li[j] == row_index){
-                dense_row[i - 1] = ldl.Lx[j];
+                dense_row[i] = ldl.Lx[j];
             }
         }
     }
@@ -213,10 +213,10 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
  * Add column to the end of lower triangular part of matrix
  * i.e. build l33 part
  */
-void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int dens_col_dim){
+void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id, int dens_col_dim){
     
     //get adress to write information
-    int active_col_id = ldl.num_cols - dens_col_dim;
+    int active_col_id = col_id;
     ldl.Lp[ active_col_id ] = ldl.num_nonzeros;
     ldl.Lp[ active_col_id + 1] = ldl.num_nonzeros;
     

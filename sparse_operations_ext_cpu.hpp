@@ -116,7 +116,7 @@ void print_csc_matrix(const csc_matrix& csc);
 
 void get_dense_row_from_triangular_gramm(const csr_matrix& csr, int row_number, double *dense_row);
 void get_ldl_dense_column_from_l_low(const ldl_matrix& ldl, int col_number, double *dense_column);
-void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int dens_col_dim);
+void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id, int dens_col_dim);
 void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row);
 ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_idx);
 #endif	/* _SPARCE_OPERATIONS_EXT_HPP */
