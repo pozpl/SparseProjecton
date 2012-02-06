@@ -156,11 +156,11 @@ void get_ldl_dense_column_from_l_low(const ldl_matrix& ldl, int col_number, doub
 
 void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row){
     for(int i=0;i < row_index + 1; i++ ){dense_row[i] = 0.0;}
-    for (int i = 0; i < ldl.num_cols; i++) {
+    for (int i = 1; i < ldl.num_cols; i++) {
         for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {           
             //std::cout << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
             if(ldl.Li[j] == row_index){
-                dense_row[i] = ldl.Lx[j];
+                dense_row[i - 1] = ldl.Lx[j];
             }
         }
     }
