@@ -2241,7 +2241,7 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
         cblas_daxpy((m- i -1), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
         std::cout << "ldl33_col after\n";
         printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
-        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i + 1], i,(m- i -1));
+        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i], i,(m- i));
     }
     
     return ldl33_new;
@@ -2249,6 +2249,28 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
 }
 
 void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int delColIdx){
+       
+    ldl_matrix ldl33_up = get_ldl33_up_from_ldl_l_upper(grammPartFactor, delColIdx + 1);
+    ldl_matrix ldl33_low = new_ldl_matrix(ldl33_up.num_cols, ldl33_up.num_nonzeros);
+    ldl_transpose(ldl33_up, ldl33_low);
+    
+    
+    int l32_id = delColIdx;
+    int l32_dem = grammPartFactor.num_rows - (l32_id + 1);
+    double* dense_row = new_host_darray(l32_dem);
+    get_ldl_dense_row_from_l_upper(grammPartFactor, l32_id, dense_row);
+    
+    ldl_matrix ldl33_new = recompute_l33_d33_for_ldl_col_del(ldl33_low, dense_row, grammPartFactor.D[l32_id]);
+    
+    //Clean ldl33_up 
+    delete_ldl_matrix(ldl33_up);
+    //allocate new memory for transposed ldl33_new
+    ldl33_up = new_ldl_matrix(ldl33_new.num_cols, ldl33_new.num_nonzeros);
+    ldl_transpose(ldl33_new, ldl33_up);   
+    
+    //INSERT ldl33_up into main ldl_up
+            
+    
     
 }
 

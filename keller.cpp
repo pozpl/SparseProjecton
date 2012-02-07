@@ -1810,13 +1810,59 @@ void try_ldl_engine(){
 }
 
 
+void test_del_row_from_ldl_up(){
+    int cols = 4;
+    int rows = 4;
+    ldl_matrix ldlm = new_ldl_matrix(cols, 10);
+    
+    
+    ldlm.num_cols = cols;
+    ldlm.num_rows = rows;
+    int elts_num = 0;
+    for (int i = 0; i < cols - 1; i++) {
+        ldlm.Lp[i] = elts_num;
+        for (int j = i + 1; j < rows; j++) {            
+            ldlm.Li[elts_num] = j;
+            ldlm.Lx[elts_num] = rand2(1,100);   
+            ldlm.num_nonzeros++;
+            elts_num++;
+        }
+    }
+    ldlm.Lp[cols - 1] = elts_num;
+    ldlm.Lp[cols] = elts_num; //This is bug, but I will dill with it
+    
+    std::cout << "Diag part\n";
+    for (int i = 0; i < ldlm.num_cols; i++) {
+        ldlm.D[i] = i + 1;
+    }
+    
+    std::cout << "LDL\n";
+    print_ldl_matrix(ldlm);
+    //for(int i = 0; i < ldlm.num_nonzeros; i++){ std::cout << ldlm.Li[i] << " ";   }
+    
+    ldl_matrix ldlmt = new_ldl_matrix(cols, 10);
+    ldl_transpose(ldlm, ldlmt);
+    
+    std::cout << "LDL^t  "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
+    //printMatrixCPU(1, ldlmt.num_cols+1, ldlmt.Lx);
+    //for(int i = 0; i < ldlmt.num_nonzeros; i++){ std::cout << ldlmt.Li[i] << " ";   }
+    //std::cout << "\n";
+    print_ldl_matrix(ldlmt);
+    
+    del_row_col_from_ldl_up(ldlmt, 1);
+    
+    print_ldl_matrix(ldlmt);
+}
+
+
 int main(int argc, char **argv) {
     //prepare_matrix();//<int, double>();
     //test_simplex_projection();
     
     //test_get_ldl33_up_from_ldl_l_upper();
-    test_recompute_l33_d33_for_ldl_col_del();
+    //test_recompute_l33_d33_for_ldl_col_del();
     
     //try_ldl_engine();
+    test_del_row_from_ldl_up();
 }
 

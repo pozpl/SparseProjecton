@@ -234,6 +234,71 @@ void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id
     }
 }
 
+void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl){
+    
+}
+
+
+/*
+ * Change LDL in upper case.
+ * Move ldl33 with new ldl33
+ */
+void change_ldl_33_up(ldl_matrix& ldl, ldl_matrix ldl33_up){
+    
+}
+
+void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx){
+    int col_begin = ldl.Lp[del_idx];
+    int col_end = ldl.Lp[del_idx + 1];
+    memmove(&ldl.Li[col_begin], &ldl.Li[col_end], sizeof (int) * (ldl.num_nonzeros - col_end));
+    memmove(&ldl.Lx[col_begin], &ldl.Lx[col_end], sizeof (double) * (ldl.num_nonzeros - col_end));
+    //memmove(&csr.Ap[row_to_del_idx], &csr.Ap[row_to_del_idx + 1], sizeof(int) * (csr.num_rows - (row_to_del_idx - 1)));
+    int els_in_col = col_end - col_begin;
+    for (int i = del_idx; i < ldl.num_cols; i++) {
+        ldl.Lp[i] = ldl.Lp[i + 1] - els_in_col;
+        //std::cout << "\ncsr.Ap[i + 1] " << csr.Ap[i + 1] << " i + 1 " <<  i + 1 << " \n";
+    }
+    ldl.Lp[ldl.num_cols] = 0;
+    ldl.num_cols--;
+    ldl.num_nonzeros -= els_in_col;   
+    
+}
+
+void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx){
+    //del row
+    for(int col_i = 1; col_i < ldl.num_cols; col_i++){
+        for(int row_i = ldl.Lp[col_i]; row_i < ldl.Lp[col_i + 1]; row_i++){
+            if(ldl.Li[row_i] = del_idx){
+                //perfom shift
+                int num_els_in_tail = ldl.num_nonzeros - (row_i + 1);
+                //cblas_dcopy(num_els_in_tail, &ldl.Lx[row_i + 1], 1, &ldl.Lx[row_i],1);
+                memmove(&ldl.Li[row_i], &ldl.Li[row_i + 1], sizeof (int) * num_els_in_tail );
+                memmove(&ldl.Lx[row_i], &ldl.Lx[row_i + 1], sizeof (double) * num_els_in_tail);
+                ldl.num_nonzeros--;
+                
+                for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
+                    ldl.Lp[col_tail_i]--;
+                }                
+            }
+            if(ldl.Li[row_i] > del_idx){
+               ldl.Li[row_i]--; 
+            }
+        }
+    }    
+    //Delete element from diagonal
+    int num_els_in_tail = ldl.num_rows - (del_idx + 1); 
+    memmove(&ldl.D[del_idx], &ldl.D[del_idx + 1], sizeof (double) * num_els_in_tail);
+    
+    ldl.num_rows--;
+}
+
+
+void del_row_col_from_ldl_up(ldl_matrix& ldl, int del_idx){
+    del_col_from_ldl_up(ldl, del_idx);
+    //print_ldl_matrix(ldl);
+    del_row_from_ldl_up(ldl, del_idx);    
+}
+
 //template <typename int, typename double>
 
 coo_matrix __get_coo_column(const csr_matrix& csr_t, int col_number) {
