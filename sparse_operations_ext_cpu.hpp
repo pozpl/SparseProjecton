@@ -120,5 +120,6 @@ void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id
 void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row);
 ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_idx);
 void del_row_col_from_ldl_up(ldl_matrix& ldl, int del_idx);
+void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33);
 #endif	/* _SPARCE_OPERATIONS_EXT_HPP */
 

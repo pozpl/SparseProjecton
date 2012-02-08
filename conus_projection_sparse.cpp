@@ -2203,8 +2203,8 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
     
     double *w = new_host_darray(ldl33_old.num_rows);
     cblas_dcopy(ldl33_old.num_rows, l32, 1, w,1);
-    std::cout << "W\n";
-    printMatrixCPU(1, ldl33_old.num_rows, w);
+    //std::cout << "W\n";
+    //printMatrixCPU(1, ldl33_old.num_rows, w);
     //get_ldl_dense_column_from_l_low(ldl33_old, 0, w);
     double sqrt_d22 = sqrt(d22);
     cblas_dscal(ldl33_old.num_rows, sqrt_d22, w, 1);
@@ -2213,14 +2213,14 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
     cblas_dcopy(ldl33_old.num_rows , w, 1, v, 1);
     ldl_lsolve(ldl33_old.num_rows, v, ldl33_old.Lp, ldl33_old.Li, ldl33_old.Lx);
     
-    std::cout << "V\n";
-    printMatrixCPU(1, ldl33_old.num_rows, v);
+    //std::cout << "V\n";
+    //printMatrixCPU(1, ldl33_old.num_rows, v);
     
     double alpha = 1.0;
     int m = ldl33_old.num_cols;
     
     double* ldl33_col = new_host_darray(ldl33_old.num_rows);
-    std::cout << "Start L33 recompution with m="<< m << "\n";
+    //std::cout << "Start L33 recompution with m="<< m << "\n";
     for(int i = 0; i < m ; i++){
         double alpha_ = alpha + v[i] * v[i] / ldl33_old.D[i];
         double gamma = v[i]/(alpha_ * ldl33_old.D[i]);
@@ -2229,18 +2229,18 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
         
         get_ldl_dense_column_from_l_low(ldl33_old, i, ldl33_col);
         
-        std::cout << "ldl33_col before i=" << i << "\n";
-        printMatrixCPU(1, (m- i -1), &ldl33_col[i+1]);
-        std::cout << "W after all\n";
-        printMatrixCPU(1, (m- i -1), &w[i + 1]);
-        std::cout << "V after all -v[" << i << "] = " << -v[i] <<"\n";
-        printMatrixCPU(1, ldl33_old.num_cols, v);
+        //std::cout << "ldl33_col before i=" << i << "\n";
+        //printMatrixCPU(1, (m- i -1), &ldl33_col[i+1]);
+        //std::cout << "W after all\n";
+        //printMatrixCPU(1, (m- i -1), &w[i + 1]);
+        //std::cout << "V after all -v[" << i << "] = " << -v[i] <<"\n";
+        //printMatrixCPU(1, ldl33_old.num_cols, v);
         cblas_daxpy((m- i -1), -v[i], &ldl33_col[i+1], 1, &w[i + 1],1);
-        std::cout << "W after all\n";
-        printMatrixCPU(1, ldl33_old.num_cols, w);
+       // std::cout << "W after all\n";
+       // printMatrixCPU(1, ldl33_old.num_cols, w);
         cblas_daxpy((m- i -1), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
-        std::cout << "ldl33_col after\n";
-        printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
+        //std::cout << "ldl33_col after\n";
+        //printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
         add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i], i,(m- i));
     }
     
@@ -2248,14 +2248,14 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
     
 }
 
-void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int delColIdx){
+void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
        
-    ldl_matrix ldl33_up = get_ldl33_up_from_ldl_l_upper(grammPartFactor, delColIdx + 1);
+    ldl_matrix ldl33_up = get_ldl33_up_from_ldl_l_upper(grammPartFactor, del_col_idx + 1);
     ldl_matrix ldl33_low = new_ldl_matrix(ldl33_up.num_cols, ldl33_up.num_nonzeros);
     ldl_transpose(ldl33_up, ldl33_low);
     
     
-    int l32_id = delColIdx;
+    int l32_id = del_col_idx;
     int l32_dem = grammPartFactor.num_rows - (l32_id + 1);
     double* dense_row = new_host_darray(l32_dem);
     get_ldl_dense_row_from_l_upper(grammPartFactor, l32_id, dense_row);
@@ -2268,8 +2268,10 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int delColIdx){
     ldl33_up = new_ldl_matrix(ldl33_new.num_cols, ldl33_new.num_nonzeros);
     ldl_transpose(ldl33_new, ldl33_up);   
     
+    //delete row and col from ldl matrix
+    del_row_col_from_ldl_up(grammPartFactor, del_col_idx);
     //INSERT ldl33_up into main ldl_up
-            
+    insert_ldl33_up_into_ldl_up(grammPartFactor, ldl33_up);        
     
     
 }

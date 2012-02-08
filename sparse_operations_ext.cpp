@@ -233,9 +233,63 @@ void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id
         }
     }
 }
+/*
+ * @param ldl - ldl matrix
+ * col_to_start_count - index of col to star count a number of elements in column.
+ */
+void compute_ldl_lnz(ldl_matrix& ldl, int col_to_start_count){
+    for(int col_i = col_to_start_count; col_i < ldl.num_cols; col_i++){
+        int row_begin = ldl.Lp[col_i];
+        int row_end   = ldl.Lp[col_i + 1];
+        ldl.Lnz[col_i] = row_end - row_begin;
+    }
+}
 
-void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl){
+void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33){
+    //compute number of nonzerows elements in ewach column of ldl33
+    compute_ldl_lnz(ldl33, 1); //because 0, column is diag element
     
+    //get col in ldl to start insert ldl33
+    //+1 is becouse we deal with uptriangle matrix
+    //and index in up triangle matrix is 1;
+    int col_to_insert = ldl.num_cols - ldl33.num_cols + 1;     
+    
+    //compute number of nonzerows elements in ewach column of ldl
+    compute_ldl_lnz(ldl, col_to_insert);
+    
+    int row_idx_to_start_insert = ldl.num_cols - ldl33.num_cols;
+    //iterate throught ldl last columns and insert ldl33 columns into right places
+    for(int col_i = col_to_insert, ldl33_col_i = 1; col_i < ldl.num_cols; col_i++, ldl33_col_i++){
+        int row_begin = ldl.Lp[col_i];
+        int row_end   = ldl.Lp[col_i + 1];
+        
+        for(int row_i = row_begin; row_i < row_end; row_i++){
+            if(ldl.Li[row_i] >= row_idx_to_start_insert){
+                int shift_elems = (row_end  - row_i) - ldl.Lnz[ldl33_col_i];
+                int tail_elements = ldl.num_nonzeros - row_i;
+                //shift for new boundares
+                memmove( &ldl.Li[row_end + shift_elems],  &ldl.Li[row_end], sizeof(int) *  tail_elements);
+                memmove( &ldl.Lx[row_end + shift_elems],  &ldl.Lx[row_end], sizeof(double) *  tail_elements);
+                
+                //actually copyinformation
+                int ldl33_row_begin = ldl33.Lp[ldl33_col_i];
+                memmove( &ldl.Li[row_i],  &ldl33.Li[ldl33_row_begin], sizeof(int) *  ldl33.Lnz[ldl33_col_i]);
+                memmove( &ldl.Lx[row_i],  &ldl33.Lx[ldl33_row_begin], sizeof(double) *  ldl33.Lnz[ldl33_col_i]);
+                
+                //correct Lp values for subsequent elements
+                for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
+                    ldl.Lp[col_tail_i] += shift_elems;
+                }
+                
+                //correct Li values
+                for(int li_idx = row_i; li_idx < ldl.Lp[col_i + 1]; li_idx++){
+                    ldl.Li[li_idx] += row_idx_to_start_insert;
+                }
+                
+                break;//go to the next column
+            }
+        }
+    }
 }
 
 
