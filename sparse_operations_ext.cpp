@@ -89,18 +89,18 @@ void get_dense_row(const csr_matrix& csr, int row_number, double *dense_row) {
     }
 }
 
-void get_dense_row_from_triangular_gramm(const csr_matrix& csr, int row_number, double *dense_row){
+void get_dense_row_from_triangular_gramm(const csr_matrix& csr, int row_number, double *dense_row) {
     for (int i = 0; i < csr.num_cols; i++) {
         dense_row[i] = 0;
     }
     /**
-    * Берём элементы по строке до индекса row_number ыключительно, остальные добрать надо по столбцам
-    */
+     * Берём элементы по строке до индекса row_number ыключительно, остальные добрать надо по столбцам
+     */
     for (int i = csr.Ap[row_number]; i < csr.Ap[row_number + 1]; i++) {
         dense_row[csr.Aj[i]] = csr.Ax[i];
     }
     //NOTE in ideal world then we do not get any rows but last row, code below shuld not work at all -> profit!
-    for(int i = csr.Ap[row_number + 1]; i < csr.Ap[csr.num_rows]; i++){
+    for (int i = csr.Ap[row_number + 1]; i < csr.Ap[csr.num_rows]; i++) {
         int rowBeg = csr.Ap[i];
         int rowEnd = csr.Ap[i + 1];
         for (int j = rowBeg; j < rowEnd; j++) {
@@ -109,7 +109,7 @@ void get_dense_row_from_triangular_gramm(const csr_matrix& csr, int row_number, 
             }
         }
     }
-    
+
 }
 
 void __get_dense_column(const csr_matrix& csr_t, int col_number, double *dense_column) {
@@ -148,41 +148,43 @@ void get_ldl_dense_column_from_l_low(const ldl_matrix& ldl, int col_number, doub
     for (int i = 0; i < ldl.num_rows - 1; i++) {
         dense_column[i] = 0.0;
     }
-    
-    for(int nonz_i=ldl.Lp[col_number]; nonz_i < ldl.Lp[col_number+1]; nonz_i++ ){
+
+    for (int nonz_i = ldl.Lp[col_number]; nonz_i < ldl.Lp[col_number + 1]; nonz_i++) {
         dense_column[ldl.Li[nonz_i]] = ldl.Lx[nonz_i];
     }
 }
 
-void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row){
-    for(int i=0;i < row_index + 1; i++ ){dense_row[i] = 0.0;}
+void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row) {
+    for (int i = 0; i < row_index + 1; i++) {
+        dense_row[i] = 0.0;
+    }
     for (int i = 1; i < ldl.num_cols; i++) {
-        for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {           
+        for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
             //std::cout << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
-            if(ldl.Li[j] == row_index){
+            if (ldl.Li[j] == row_index) {
                 dense_row[i - 1] = ldl.Lx[j];
             }
         }
     }
 }
 
-ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_idx){
+ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_idx) {
     //estimate elements number
     int elemets_number = 0;
     for (int i = row_start_idx; i < ldl.num_cols; i++) {
         for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
-            if(ldl.Li[j] >= row_start_idx){
+            if (ldl.Li[j] >= row_start_idx) {
                 elemets_number++;
             }
         }
     }
-    
+
     std::cout << "Elements in L33 = " << elemets_number << "\n";
-    
+
     int ldl33_max_dim = ldl.num_rows - row_start_idx;
     //construct new ldl matrix with upper triangular form
     ldl_matrix ldl33_up = new_ldl_matrix(ldl33_max_dim, elemets_number);
-    
+
     //copy L^t_33 to L_33
     ldl33_up.num_cols = ldl.num_cols - row_start_idx;
     ldl33_up.num_rows = ldl.num_rows - row_start_idx;
@@ -190,22 +192,22 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
     for (int i = row_start_idx; i < ldl.num_cols; i++) {
         ldl33_up.Lp[i - row_start_idx] = elemets_number;
         for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
-            if(ldl.Li[j] >= row_start_idx){
+            if (ldl.Li[j] >= row_start_idx) {
                 ldl33_up.Li[elemets_number] = ldl.Li[j] - row_start_idx;
                 ldl33_up.Lx[elemets_number] = ldl.Lx[j];
                 ldl33_up.num_nonzeros++;
                 elemets_number++;
             }
         }
-    }    
+    }
     ldl33_up.Lp[ldl.num_cols - row_start_idx] = elemets_number;
-    
-    
+
+
     //copy diagonal elements
-    for(int diag_idx = row_start_idx; diag_idx < ldl.num_cols; diag_idx++){
+    for (int diag_idx = row_start_idx; diag_idx < ldl.num_cols; diag_idx++) {
         ldl33_up.D[diag_idx - row_start_idx] = ldl.D[diag_idx];
     }
-    
+
     return ldl33_up;
 }
 
@@ -213,142 +215,142 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
  * Add column to the end of lower triangular part of matrix
  * i.e. build l33 part
  */
-void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id, int dens_col_dim){
-    
+void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id, int dens_col_dim) {
+
     //get adress to write information
     int active_col_id = col_id;
     ldl.Lp[ active_col_id ] = ldl.num_nonzeros;
     ldl.Lp[ active_col_id + 1] = ldl.num_nonzeros;
-    
+
     int ldl_li_index_to_insert = ldl.num_nonzeros;
-    
-    for(int den_col_iter = 0; den_col_iter < dens_col_dim; den_col_iter++){
-        if(dense_column[den_col_iter] != 0){
+
+    for (int den_col_iter = 0; den_col_iter < dens_col_dim; den_col_iter++) {
+        if (dense_column[den_col_iter] != 0) {
             ldl.Li[ldl_li_index_to_insert] = den_col_iter;
             ldl.Lx[ldl_li_index_to_insert] = dense_column[den_col_iter];
-            
+
             ldl_li_index_to_insert++;
             ldl.num_nonzeros++;
             ldl.Lp[active_col_id + 1]++;
         }
     }
 }
+
 /*
  * @param ldl - ldl matrix
  * col_to_start_count - index of col to star count a number of elements in column.
  */
-void compute_ldl_lnz(ldl_matrix& ldl, int col_to_start_count){
-    for(int col_i = col_to_start_count; col_i < ldl.num_cols; col_i++){
+void compute_ldl_lnz(ldl_matrix& ldl, int col_to_start_count) {
+    for (int col_i = col_to_start_count; col_i < ldl.num_cols; col_i++) {
         int row_begin = ldl.Lp[col_i];
-        int row_end   = ldl.Lp[col_i + 1];
+        int row_end = ldl.Lp[col_i + 1];
         ldl.Lnz[col_i] = row_end - row_begin;
     }
 }
 
-void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33){
+void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33) {
     //compute number of nonzerows elements in ewach column of ldl33
     compute_ldl_lnz(ldl33, 1); //because 0, column is diag element
-    
+
     //get col in ldl to start insert ldl33
     //+1 is becouse we deal with uptriangle matrix
     //and index in up triangle matrix is 1;
-    int col_to_insert = ldl.num_cols - ldl33.num_cols + 1;     
-    
+    int col_to_insert = ldl.num_cols - ldl33.num_cols + 1;
+
     //compute number of nonzerows elements in ewach column of ldl
     compute_ldl_lnz(ldl, col_to_insert);
-    
+
     int row_idx_to_start_insert = ldl.num_cols - ldl33.num_cols;
     //iterate throught ldl last columns and insert ldl33 columns into right places
-    for(int col_i = col_to_insert, ldl33_col_i = 1; col_i < ldl.num_cols; col_i++, ldl33_col_i++){
+    for (int col_i = col_to_insert, ldl33_col_i = 1; col_i < ldl.num_cols; col_i++, ldl33_col_i++) {
         int row_begin = ldl.Lp[col_i];
-        int row_end   = ldl.Lp[col_i + 1];
-        
-        for(int row_i = row_begin; row_i < row_end; row_i++){
-            if(ldl.Li[row_i] >= row_idx_to_start_insert){
-                int shift_elems = (row_end  - row_i) - ldl.Lnz[ldl33_col_i];
+        int row_end = ldl.Lp[col_i + 1];
+
+        for (int row_i = row_begin; row_i < row_end; row_i++) {
+            if (ldl.Li[row_i] >= row_idx_to_start_insert) {
+                int shift_elems = (row_end - row_i) - ldl.Lnz[ldl33_col_i];
                 int tail_elements = ldl.num_nonzeros - row_i;
                 //shift for new boundares
-                memmove( &ldl.Li[row_end + shift_elems],  &ldl.Li[row_end], sizeof(int) *  tail_elements);
-                memmove( &ldl.Lx[row_end + shift_elems],  &ldl.Lx[row_end], sizeof(double) *  tail_elements);
-                
+                memmove(&ldl.Li[row_end + shift_elems], &ldl.Li[row_end], sizeof (int) * tail_elements);
+                memmove(&ldl.Lx[row_end + shift_elems], &ldl.Lx[row_end], sizeof (double) * tail_elements);
+
                 //actually copyinformation
                 int ldl33_row_begin = ldl33.Lp[ldl33_col_i];
-                memmove( &ldl.Li[row_i],  &ldl33.Li[ldl33_row_begin], sizeof(int) *  ldl33.Lnz[ldl33_col_i]);
-                memmove( &ldl.Lx[row_i],  &ldl33.Lx[ldl33_row_begin], sizeof(double) *  ldl33.Lnz[ldl33_col_i]);
-                
+                memmove(&ldl.Li[row_i], &ldl33.Li[ldl33_row_begin], sizeof (int) * ldl33.Lnz[ldl33_col_i]);
+                memmove(&ldl.Lx[row_i], &ldl33.Lx[ldl33_row_begin], sizeof (double) * ldl33.Lnz[ldl33_col_i]);
+
                 //correct Lp values for subsequent elements
                 for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
                     ldl.Lp[col_tail_i] += shift_elems;
                 }
-                
+
                 //correct Li values
-                for(int li_idx = row_i; li_idx < ldl.Lp[col_i + 1]; li_idx++){
+                for (int li_idx = row_i; li_idx < ldl.Lp[col_i + 1]; li_idx++) {
                     ldl.Li[li_idx] += row_idx_to_start_insert;
                 }
-                
-                break;//go to the next column
+
+                break; //go to the next column
             }
         }
     }
 }
-
 
 /*
  * Change LDL in upper case.
  * Move ldl33 with new ldl33
  */
-void change_ldl_33_up(ldl_matrix& ldl, ldl_matrix ldl33_up){
-    
+void change_ldl_33_up(ldl_matrix& ldl, ldl_matrix ldl33_up) {
+
 }
 
-void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx){    
-    int col_begin = ldl.Lp[del_idx];
-    int col_end = ldl.Lp[del_idx + 1];
-    memmove(&ldl.Li[col_begin], &ldl.Li[col_end], sizeof (int) * (ldl.num_nonzeros - col_end));
-    memmove(&ldl.Lx[col_begin], &ldl.Lx[col_end], sizeof (double) * (ldl.num_nonzeros - col_end));
-    //memmove(&csr.Ap[row_to_del_idx], &csr.Ap[row_to_del_idx + 1], sizeof(int) * (csr.num_rows - (row_to_del_idx - 1)));
-    int els_in_col = col_end - col_begin;
-    for (int i = del_idx; i < ldl.num_cols; i++) {
-        ldl.Lp[i] = ldl.Lp[i + 1] - els_in_col;
-        //std::cout << "\ncsr.Ap[i + 1] " << csr.Ap[i + 1] << " i + 1 " <<  i + 1 << " \n";
+void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx) {
+    if (del_idx != 0) {
+        int col_begin = ldl.Lp[del_idx];
+        int col_end = ldl.Lp[del_idx + 1];
+        memmove(&ldl.Li[col_begin], &ldl.Li[col_end], sizeof (int) * (ldl.num_nonzeros - col_end));
+        memmove(&ldl.Lx[col_begin], &ldl.Lx[col_end], sizeof (double) * (ldl.num_nonzeros - col_end));
+        //memmove(&csr.Ap[row_to_del_idx], &csr.Ap[row_to_del_idx + 1], sizeof(int) * (csr.num_rows - (row_to_del_idx - 1)));
+        int els_in_col = col_end - col_begin;
+        for (int i = del_idx; i < ldl.num_cols; i++) {
+            ldl.Lp[i] = ldl.Lp[i + 1] - els_in_col;
+            //std::cout << "\ncsr.Ap[i + 1] " << csr.Ap[i + 1] << " i + 1 " <<  i + 1 << " \n";
+        }
+        ldl.Lp[ldl.num_cols] = 0;
+        ldl.num_cols--;
+        ldl.num_nonzeros -= els_in_col;
     }
-    ldl.Lp[ldl.num_cols] = 0;
-    ldl.num_cols--;
-    ldl.num_nonzeros -= els_in_col;       
 }
 
-void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx){
+void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx) {
     //del row
-    for(int col_i = 1; col_i < ldl.num_cols; col_i++){
-        for(int row_i = ldl.Lp[col_i]; row_i < ldl.Lp[col_i + 1]; row_i++){
-            if(ldl.Li[row_i] == del_idx){
+    for (int col_i = 1; col_i < ldl.num_cols; col_i++) {
+        for (int row_i = ldl.Lp[col_i]; row_i < ldl.Lp[col_i + 1]; row_i++) {
+            if (ldl.Li[row_i] == del_idx) {
                 //perfom shift
-                int num_els_in_tail = ldl.num_nonzeros - (row_i + 1);                
-                memmove(&ldl.Li[row_i], &ldl.Li[row_i + 1], sizeof (int) * num_els_in_tail );
+                int num_els_in_tail = ldl.num_nonzeros - (row_i + 1);
+                memmove(&ldl.Li[row_i], &ldl.Li[row_i + 1], sizeof (int) * num_els_in_tail);
                 memmove(&ldl.Lx[row_i], &ldl.Lx[row_i + 1], sizeof (double) * num_els_in_tail);
                 ldl.num_nonzeros--;
-                
+
                 for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
                     ldl.Lp[col_tail_i]--;
                 }
+            } else if (ldl.Li[row_i] > del_idx) {
+                ldl.Li[row_i]--;
             }
-            else if(ldl.Li[row_i] > del_idx){
-               ldl.Li[row_i]--; 
-            }            
         }
-    }    
+    }
     //Delete element from diagonal
-    int num_els_in_tail = ldl.num_rows - (del_idx + 1); 
+    int num_els_in_tail = ldl.num_rows - (del_idx + 1);
     memmove(&ldl.D[del_idx], &ldl.D[del_idx + 1], sizeof (double) * num_els_in_tail);
-    
+
     ldl.num_rows--;
 }
 
-
-void del_row_col_from_ldl_up(ldl_matrix& ldl, int del_idx){
+void del_row_col_from_ldl_up(ldl_matrix& ldl, int del_idx) {
     del_col_from_ldl_up(ldl, del_idx);
     //print_ldl_matrix(ldl);
-    del_row_from_ldl_up(ldl, del_idx);    
+    del_row_from_ldl_up(ldl, del_idx);
 }
 
 //template <typename int, typename double>
@@ -756,7 +758,7 @@ void transpose_coo_mv(coo_matrix &coo) {
 //template <typename int, typename double>
 
 void add_row_to_csr(csr_matrix &csr,
-        coo_matrix &coo_row) {    
+        coo_matrix &coo_row) {
     if (coo_row.num_nonzeros > 0) {
         int lastRowCsrIndex;
         if (csr.num_rows == 0) {
@@ -782,7 +784,7 @@ void add_row_to_csr(csr_matrix &csr,
             //std::cout << "add new ell " << csr.num_rows << " " << csr.Aj[jj] << " " << csr.Ax[jj] << "\n";
         }
         //std::cout << "CSR NUM COLS " << csr.num_cols << " nonzerros " << csr.num_nonzeros << " num rows " << csr.num_rows << "\n";
-    }else{
+    } else {
         int lastRowCsrIndex;
         if (csr.num_rows == 0) {
             lastRowCsrIndex = 1;
@@ -792,7 +794,7 @@ void add_row_to_csr(csr_matrix &csr,
         csr.num_rows++;
         csr.Ap[lastRowCsrIndex] = csr.Ap[lastRowCsrIndex - 1];
     }
-    
+
 }
 
 /*void add_row_to_ldl(ldl_matrix& ldl,  coo_matrix& coo_row) {
@@ -857,18 +859,18 @@ void add_row_to_ldl(ldl_matrix& ldl, coo_matrix& coo_row) {
     for (int nzr_i = 0; nzr_i < coo_row.num_nonzeros - 1; nzr_i++) {
         int el_col_idx = coo_row.J[nzr_i];
         //if (el_col_idx < l_num_cols) {
-            double el_val = coo_row.V[nzr_i];
-            int ldl_next_col_start_idx = ldl.Lp[el_col_idx + 1];
-            int num_eld_involved = ldl.num_nonzeros - ldl_next_col_start_idx;
-            //std::cout << "el_col_idx =  " << el_col_idx << " index of array to start " << ldl_next_col_start_idx << " number of nonzeros " << ldl.num_nonzeros << " number l colums " << l_num_cols << " \n";
-            memmove(&ldl.Li[ldl_next_col_start_idx + 1], &ldl.Li[ldl_next_col_start_idx], sizeof (int) * num_eld_involved);
-            memmove(&ldl.Lx[ldl_next_col_start_idx + 1], &ldl.Lx[ldl_next_col_start_idx], sizeof (double) * num_eld_involved);
-            ldl.num_nonzeros++;
-            ldl.Li[ldl_next_col_start_idx] = l_num_rows ;
-            ldl.Lx[ldl_next_col_start_idx] = el_val;
-            for (int ldl_col_i = el_col_idx + 1; ldl_col_i <= l_num_cols; ldl_col_i++) {
-                ldl.Lp[ldl_col_i]++;
-            }
+        double el_val = coo_row.V[nzr_i];
+        int ldl_next_col_start_idx = ldl.Lp[el_col_idx + 1];
+        int num_eld_involved = ldl.num_nonzeros - ldl_next_col_start_idx;
+        //std::cout << "el_col_idx =  " << el_col_idx << " index of array to start " << ldl_next_col_start_idx << " number of nonzeros " << ldl.num_nonzeros << " number l colums " << l_num_cols << " \n";
+        memmove(&ldl.Li[ldl_next_col_start_idx + 1], &ldl.Li[ldl_next_col_start_idx], sizeof (int) * num_eld_involved);
+        memmove(&ldl.Lx[ldl_next_col_start_idx + 1], &ldl.Lx[ldl_next_col_start_idx], sizeof (double) * num_eld_involved);
+        ldl.num_nonzeros++;
+        ldl.Li[ldl_next_col_start_idx] = l_num_rows;
+        ldl.Lx[ldl_next_col_start_idx] = el_val;
+        for (int ldl_col_i = el_col_idx + 1; ldl_col_i <= l_num_cols; ldl_col_i++) {
+            ldl.Lp[ldl_col_i]++;
+        }
         //}
     }
     ldl.D[ldl.num_cols - 1] = coo_row.V[coo_row.num_nonzeros - 1];
@@ -906,23 +908,23 @@ void add_col_to_ldl(ldl_matrix &ldl,
     
     ldl.D[ldl.num_cols - 1] = coo_col.V[coo_col.num_nonzeros - 1];
 }
-*/
+ */
 
 
 void add_col_to_ldl(ldl_matrix &ldl, coo_matrix &coo_col) {
     int begin_idx = ldl.Lp[ldl.num_cols];
-    
-    if (coo_col.num_nonzeros > 0) {        
-        for(int coo_i = 0; coo_i < coo_col.num_nonzeros - 1; coo_i++){
+
+    if (coo_col.num_nonzeros > 0) {
+        for (int coo_i = 0; coo_i < coo_col.num_nonzeros - 1; coo_i++) {
             ldl.Li[begin_idx + coo_i] = coo_col.I[coo_i];
             ldl.Lx[begin_idx + coo_i] = coo_col.V[coo_i];
-            if(coo_col.I[coo_i] + 1 > ldl.num_rows){
+            if (coo_col.I[coo_i] + 1 > ldl.num_rows) {
                 ldl.num_rows = coo_col.J[coo_i] + 1;
             }
         }
-        
+
     }
-    
+
     ldl.num_cols++;
     ldl.Lp[ldl.num_cols] = begin_idx + coo_col.num_nonzeros - 1;
     ldl.D[ldl.num_cols - 1] = coo_col.V[coo_col.num_nonzeros - 1];
@@ -1021,14 +1023,13 @@ void spmv_csr_serial_host(const csr_matrix& csr,
     }
 }
 
-
 void spmv_scr_t_coo_serial_host(const csr_matrix& csr_t,
         const coo_matrix x,
-        double * y){
+        double * y) {
     for (int y_i = 0; y_i < csr_t.num_cols; y_i++) {
         y[y_i] = 0.0;
     }
-    for(int coo_i = 0; coo_i < x.num_nonzeros; coo_i++){
+    for (int coo_i = 0; coo_i < x.num_nonzeros; coo_i++) {
         int x_col = x.I[coo_i];
         double x_val = x.V[coo_i];
         int row_start = csr_t.Ap[x_col];
@@ -1036,7 +1037,7 @@ void spmv_scr_t_coo_serial_host(const csr_matrix& csr_t,
         for (int csr_row_i = row_start; csr_row_i < row_end; csr_row_i++) {
             int csr_col = csr_t.Aj[ csr_row_i ]; //column index
             double csr_val = csr_t.Ax[csr_row_i];
-            
+
             y[csr_col] += csr_val * x_val;
         }
     }
@@ -1336,8 +1337,8 @@ void csr_transpose(const int * Ap,
         //}
         temp[Aj[i]]++;
     }
-    
-    
+
+
     Bp[0] = 0;
     for (int i = 0; i < num_cols; i++) {
         Bp[i + 1] = Bp[i] + temp[i]; //cumsum number column entries to form Bp
@@ -1361,17 +1362,17 @@ void csr_transpose(const int * Ap,
     free(temp);
 }
 
-ldl_matrix ldl_transpose(const ldl_matrix& ldl, ldl_matrix& ldl_t){
+ldl_matrix ldl_transpose(const ldl_matrix& ldl, ldl_matrix& ldl_t) {
     //ldl_matrix ldl_t;
-    
+
     ldl_t.num_nonzeros = 0;
     ldl_t.num_cols = 0;
     ldl_t.num_rows = 0;
-    
+
     ldl_t.num_rows = ldl.num_cols;
     ldl_t.num_cols = ldl.num_rows;
     ldl_t.num_nonzeros = ldl.num_nonzeros;
-    
+
     /*
     ldl_t.D = new_host_darray(ldl.MAX_D_LP_SIZE);
     ldl_t.Lp = new_host_iarray(ldl.MAX_D_LP_SIZE);
@@ -1381,7 +1382,7 @@ ldl_matrix ldl_transpose(const ldl_matrix& ldl, ldl_matrix& ldl_t){
     ldl_t.Parent = new_host_iarray(ldl.MAX_D_LP_SIZE);
      */
     cblas_dcopy(ldl.num_cols, ldl.D, 1, ldl_t.D, 1);
-    
+
     csr_transpose(ldl.Lp, ldl.Li, ldl.Lx,
             //ldl.num_rows, ldl.num_cols,
             ldl.num_cols, ldl.num_rows,
@@ -1427,26 +1428,22 @@ void csr_transpose_mv(const csr_matrix& csr, csr_matrix& csr_t) {
     //return csr_t;
 }
 
-
 void ldl_lsolve_t
 (
-    int n,          /* L is n-by-n, where n >= 0 */
-    double X [ ],       /* size n.  right-hand-side on input, soln. on output */
-    int Lp [ ],     /* input of size n+1, not modified */
-    int Li [ ],     /* input of size lnz=Lp[n], not modified */
-    double Lx [ ]       /* input of size lnz=Lp[n], not modified */
-)
-{
-    int j, p, p2 ;
+        int n, /* L is n-by-n, where n >= 0 */
+        double X [ ], /* size n.  right-hand-side on input, soln. on output */
+        int Lp [ ], /* input of size n+1, not modified */
+        int Li [ ], /* input of size lnz=Lp[n], not modified */
+        double Lx [ ] /* input of size lnz=Lp[n], not modified */
+        ) {
+    int j, p, p2;
     //for (j = 0 ; j < n ; j++)
-    for (j = n - 1 ; j >= 0 ; j--)
-    {
-        p2 = Lp [j+1] ;
+    for (j = n - 1; j >= 0; j--) {
+        p2 = Lp [j + 1];
         //for (p = Lp [j] ; p < p2 ; p++)
-        for (p = p2 - 1  ; p >= Lp[j] ; p--)
-        {
+        for (p = p2 - 1; p >= Lp[j]; p--) {
             //X [Li [p]] -= Lx [p] * X [j] ;
-            X [Li [p]] -= Lx [p] * X [j] ;
+            X [Li [p]] -= Lx [p] * X [j];
         }
     }
 }
@@ -1454,44 +1451,41 @@ void ldl_lsolve_t
 
 /* ========================================================================== */
 /* === ldl_dsolve:  solve Dx=b ============================================== */
+
 /* ========================================================================== */
 
 void ldl_dsolve_t
 (
-    int n,          /* D is n-by-n, where n >= 0 */
-    double X [ ],       /* size n.  right-hand-side on input, soln. on output */
-    double D [ ]        /* input of size n, not modified */
-)
-{
-    int j ;
-    for (j = 0 ; j < n ; j++)
-    {
-        X [j] /= D [j] ;
+        int n, /* D is n-by-n, where n >= 0 */
+        double X [ ], /* size n.  right-hand-side on input, soln. on output */
+        double D [ ] /* input of size n, not modified */
+        ) {
+    int j;
+    for (j = 0; j < n; j++) {
+        X [j] /= D [j];
     }
 }
 
 
 /* ========================================================================== */
 /* === ldl_ltsolve: solve L'x=b  ============================================ */
+
 /* ========================================================================== */
 
 void ldl_ltsolve_t
 (
-    int n,          /* L is n-by-n, where n >= 0 */
-    double X [ ],       /* size n.  right-hand-side on input, soln. on output */
-    int Lp [ ],     /* input of size n+1, not modified */
-    int Li [ ],     /* input of size lnz=Lp[n], not modified */
-    double Lx [ ]       /* input of size lnz=Lp[n], not modified */
-)
-{
-    int j, p, p2 ;
+        int n, /* L is n-by-n, where n >= 0 */
+        double X [ ], /* size n.  right-hand-side on input, soln. on output */
+        int Lp [ ], /* input of size n+1, not modified */
+        int Li [ ], /* input of size lnz=Lp[n], not modified */
+        double Lx [ ] /* input of size lnz=Lp[n], not modified */
+        ) {
+    int j, p, p2;
     //for (j = n-1 ; j >= 0 ; j--)
-    for (j = 0 ; j < n ; j++)
-    {
-        p2 = Lp [j+1] ;
-        for (p = Lp [j] ; p < p2 ; p++)
-        {
-            X [j] -= Lx [p] * X [Li [p]] ;
+    for (j = 0; j < n; j++) {
+        p2 = Lp [j + 1];
+        for (p = Lp [j]; p < p2; p++) {
+            X [j] -= Lx [p] * X [Li [p]];
         }
     }
 }
@@ -1830,16 +1824,14 @@ void mulGrammToX(const csr_matrix& basis_t,
     free(gramm_row);
 }
 
-
-
-double* eval_csc_cols_norms(csc_matrix csc){
+double* eval_csc_cols_norms(csc_matrix csc) {
     double *norms = new_host_darray(csc.num_cols);
-    for(int col_i = 0; col_i < csc.num_cols; col_i++){
+    for (int col_i = 0; col_i < csc.num_cols; col_i++) {
         int bgn_idx = csc.Cp[col_i];
         int end_idx = csc.Cp[col_i + 1];
         double qudr_summ = 0.0;
-        for(int row_i = bgn_idx; row_i < end_idx; row_i++){
-            qudr_summ += csc.Ex[row_i] * csc.Ex[row_i];            
+        for (int row_i = bgn_idx; row_i < end_idx; row_i++) {
+            qudr_summ += csc.Ex[row_i] * csc.Ex[row_i];
         }
         norms[col_i] = sqrt(qudr_summ);
     }
