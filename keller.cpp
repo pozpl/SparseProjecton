@@ -1849,7 +1849,12 @@ void test_del_row_from_ldl_up(){
     //std::cout << "\n";
     print_ldl_matrix(ldlmt);
     
-    del_row_col_from_ldl_up(ldlmt, 1);
+    del_col_from_ldl_up(ldlmt, 0);
+    std::cout << "LDL^t after deletion of col "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
+    print_ldl_matrix(ldlmt);
+    
+    del_row_from_ldl_up(ldlmt, 0);
+    std::cout << "LDL^t after deletion of ROW "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
     
     print_ldl_matrix(ldlmt);
 }
@@ -1882,16 +1887,14 @@ void test_delete_row_from_ldl_factor(){
         ldlm.D[i] = i + 1;
     }
     
-    std::cout << "LDL\n";
-    print_ldl_matrix(ldlm);
-    //for(int i = 0; i < ldlm.num_nonzeros; i++){ std::cout << ldlm.Li[i] << " ";   }
-    
     ldl_matrix ldlmt = new_ldl_matrix(cols, 10);
     ldl_transpose(ldlm, ldlmt);
+    std::cout << "LDL\n";
+    print_ldl_matrix(ldlmt);
     
     delete_col_from_ldl_factor(ldlmt, 0);
     
-    std::cout << "LDL with delted row and column\n";
+    std::cout << "LDL with delted row and column and recomputed L33 part\n";
     print_ldl_matrix(ldlmt);
 }
 
@@ -1903,8 +1906,8 @@ int main(int argc, char **argv) {
     //test_recompute_l33_d33_for_ldl_col_del();
     
     //try_ldl_engine();
-    //test_del_row_from_ldl_up();
+    test_del_row_from_ldl_up();
     
-    test_delete_row_from_ldl_factor();
+    //test_delete_row_from_ldl_factor();
 }
 

@@ -2270,6 +2270,10 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     
     //delete row and col from ldl matrix
     del_row_col_from_ldl_up(grammPartFactor, del_col_idx);
+    
+    std::cout << "LDL with delted row and column\n";
+    print_ldl_matrix(grammPartFactor);
+    
     //INSERT ldl33_up into main ldl_up
     insert_ldl33_up_into_ldl_up(grammPartFactor, ldl33_up);        
     

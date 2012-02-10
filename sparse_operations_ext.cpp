@@ -301,7 +301,7 @@ void change_ldl_33_up(ldl_matrix& ldl, ldl_matrix ldl33_up){
     
 }
 
-void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx){
+void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx){    
     int col_begin = ldl.Lp[del_idx];
     int col_end = ldl.Lp[del_idx + 1];
     memmove(&ldl.Li[col_begin], &ldl.Li[col_end], sizeof (int) * (ldl.num_nonzeros - col_end));
@@ -314,29 +314,27 @@ void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx){
     }
     ldl.Lp[ldl.num_cols] = 0;
     ldl.num_cols--;
-    ldl.num_nonzeros -= els_in_col;   
-    
+    ldl.num_nonzeros -= els_in_col;       
 }
 
 void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx){
     //del row
     for(int col_i = 1; col_i < ldl.num_cols; col_i++){
         for(int row_i = ldl.Lp[col_i]; row_i < ldl.Lp[col_i + 1]; row_i++){
-            if(ldl.Li[row_i] = del_idx){
+            if(ldl.Li[row_i] == del_idx){
                 //perfom shift
-                int num_els_in_tail = ldl.num_nonzeros - (row_i + 1);
-                //cblas_dcopy(num_els_in_tail, &ldl.Lx[row_i + 1], 1, &ldl.Lx[row_i],1);
+                int num_els_in_tail = ldl.num_nonzeros - (row_i + 1);                
                 memmove(&ldl.Li[row_i], &ldl.Li[row_i + 1], sizeof (int) * num_els_in_tail );
                 memmove(&ldl.Lx[row_i], &ldl.Lx[row_i + 1], sizeof (double) * num_els_in_tail);
                 ldl.num_nonzeros--;
                 
                 for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
                     ldl.Lp[col_tail_i]--;
-                }                
+                }
             }
-            if(ldl.Li[row_i] > del_idx){
+            else if(ldl.Li[row_i] > del_idx){
                ldl.Li[row_i]--; 
-            }
+            }            
         }
     }    
     //Delete element from diagonal
