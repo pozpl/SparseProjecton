@@ -1844,17 +1844,14 @@ void test_del_row_from_ldl_up(){
     ldl_transpose(ldlm, ldlmt);
     
     std::cout << "LDL^t  "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
-    //printMatrixCPU(1, ldlmt.num_cols+1, ldlmt.Lx);
-    //for(int i = 0; i < ldlmt.num_nonzeros; i++){ std::cout << ldlmt.Li[i] << " ";   }
-    //std::cout << "\n";
-    print_ldl_matrix(ldlmt);
-    
-    del_col_from_ldl_up(ldlmt, 0);
-    std::cout << "LDL^t after deletion of col "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
     print_ldl_matrix(ldlmt);
     
     del_row_from_ldl_up(ldlmt, 0);
     std::cout << "LDL^t after deletion of ROW "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
+    print_ldl_matrix(ldlmt);
+    
+    del_col_from_ldl_up(ldlmt, 0);
+    std::cout << "LDL^t after deletion of col "<< "nonzeros ->" <<ldlmt.num_nonzeros << " cols-> " << ldlmt.num_cols << "\n";
     
     print_ldl_matrix(ldlmt);
 }
@@ -1903,10 +1900,10 @@ int main(int argc, char **argv) {
     //test_simplex_projection();
     
     //test_get_ldl33_up_from_ldl_l_upper();
-    //test_recompute_l33_d33_for_ldl_col_del();
+    test_recompute_l33_d33_for_ldl_col_del();
     
     //try_ldl_engine();
-    test_del_row_from_ldl_up();
+    //test_del_row_from_ldl_up();
     
     //test_delete_row_from_ldl_factor();
 }

@@ -2268,6 +2268,10 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     ldl33_up = new_ldl_matrix(ldl33_new.num_cols, ldl33_new.num_nonzeros);
     ldl_transpose(ldl33_new, ldl33_up);   
     
+    std::cout << "ldl33recomputed\n";
+    print_ldl_matrix(ldl33_up);
+    
+    
     //delete row and col from ldl matrix
     del_row_col_from_ldl_up(grammPartFactor, del_col_idx);
     

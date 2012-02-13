@@ -268,7 +268,7 @@ void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33) {
 
         for (int row_i = row_begin; row_i < row_end; row_i++) {
             if (ldl.Li[row_i] >= row_idx_to_start_insert) {
-                int shift_elems = (row_end - row_i) - ldl.Lnz[ldl33_col_i];
+                int shift_elems = (row_end - row_i) - ldl33.Lnz[ldl33_col_i];
                 int tail_elements = ldl.num_nonzeros - row_i;
                 //shift for new boundares
                 memmove(&ldl.Li[row_end + shift_elems], &ldl.Li[row_end], sizeof (int) * tail_elements);
@@ -316,14 +316,18 @@ void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx) {
             //std::cout << "\ncsr.Ap[i + 1] " << csr.Ap[i + 1] << " i + 1 " <<  i + 1 << " \n";
         }
         ldl.Lp[ldl.num_cols] = 0;
-        ldl.num_cols--;
-        ldl.num_nonzeros -= els_in_col;
+        ldl.num_nonzeros -= els_in_col;                
     }
+    memmove(&ldl.Lp[del_idx], &ldl.Lp[del_idx + 1], sizeof (int) * (ldl.num_cols - del_idx ));
+    ldl.num_cols--;
 }
 
 void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx) {
+    //If del_idx = 0, then we del only from diag part, but l_up part is 
+    //unchnged, so we need fix this
+    int columns_in_ldl_up = ldl.num_rows;//(del_idx == 0) ? ldl.num_cols + 1 : ldl.num_cols;
     //del row
-    for (int col_i = 1; col_i < ldl.num_cols; col_i++) {
+    for (int col_i = 1; col_i < columns_in_ldl_up; col_i++) {
         for (int row_i = ldl.Lp[col_i]; row_i < ldl.Lp[col_i + 1]; row_i++) {
             if (ldl.Li[row_i] == del_idx) {
                 //perfom shift
@@ -332,7 +336,7 @@ void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx) {
                 memmove(&ldl.Lx[row_i], &ldl.Lx[row_i + 1], sizeof (double) * num_els_in_tail);
                 ldl.num_nonzeros--;
 
-                for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
+                for (int col_tail_i = col_i + 1; col_tail_i < columns_in_ldl_up + 1; col_tail_i++) {
                     ldl.Lp[col_tail_i]--;
                 }
             } else if (ldl.Li[row_i] > del_idx) {
@@ -348,9 +352,9 @@ void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx) {
 }
 
 void del_row_col_from_ldl_up(ldl_matrix& ldl, int del_idx) {
-    del_col_from_ldl_up(ldl, del_idx);
-    //print_ldl_matrix(ldl);
     del_row_from_ldl_up(ldl, del_idx);
+    
+    del_col_from_ldl_up(ldl, del_idx);
 }
 
 //template <typename int, typename double>
