@@ -226,7 +226,7 @@ void add_last_col_to_ldl_l_low(ldl_matrix& ldl, double *dense_column, int col_id
 
     for (int den_col_iter = 0; den_col_iter < dens_col_dim; den_col_iter++) {
         if (dense_column[den_col_iter] != 0) {
-            ldl.Li[ldl_li_index_to_insert] = den_col_iter;
+            ldl.Li[ldl_li_index_to_insert] = den_col_iter + 1 + col_id;
             ldl.Lx[ldl_li_index_to_insert] = dense_column[den_col_iter];
 
             ldl_li_index_to_insert++;
@@ -335,9 +335,13 @@ void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx) {
                 memmove(&ldl.Li[row_i], &ldl.Li[row_i + 1], sizeof (int) * num_els_in_tail);
                 memmove(&ldl.Lx[row_i], &ldl.Lx[row_i + 1], sizeof (double) * num_els_in_tail);
                 ldl.num_nonzeros--;
-
+                
                 for (int col_tail_i = col_i + 1; col_tail_i < columns_in_ldl_up + 1; col_tail_i++) {
                     ldl.Lp[col_tail_i]--;
+                } 
+                
+                if(row_i < ldl.Lp[col_i + 1]){                        
+                        ldl.Li[row_i]--;
                 }
             } else if (ldl.Li[row_i] > del_idx) {
                 ldl.Li[row_i]--;

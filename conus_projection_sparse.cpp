@@ -2241,8 +2241,11 @@ ldl_matrix recompute_l33_d33_for_ldl_col_del(ldl_matrix &ldl33_old, double* l32,
         cblas_daxpy((m- i -1), gamma, &w[i+1], 1, &ldl33_col[i + 1],1);
         //std::cout << "ldl33_col after\n";
         //printMatrixCPU(1, ldl33_old.num_cols, ldl33_col);
-        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i], i,(m- i));
+        add_last_col_to_ldl_l_low(ldl33_new, &ldl33_col[i + 1], i,(m- (i + 1)) );
     }
+    delete_host_array(w);
+    delete_host_array(v);
+    delete_host_array(ldl33_col);    
     
     return ldl33_new;
     
@@ -2281,7 +2284,10 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     //INSERT ldl33_up into main ldl_up
     insert_ldl33_up_into_ldl_up(grammPartFactor, ldl33_up);        
     
-    
+    delete_ldl_matrix(ldl33_up);
+    delete_ldl_matrix(ldl33_low);
+    delete_ldl_matrix(ldl33_new);
+    delete_host_array(dense_row);
 }
 
 void change_sign_in_ldl(ldl_matrix &ldlm, int num_col){

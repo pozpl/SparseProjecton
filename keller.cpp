@@ -1771,6 +1771,13 @@ void test_recompute_l33_d33_for_ldl_col_del(){
     
     std::cout << "LDL33 recomputed\n";
     print_ldl_matrix(ldl33_new);
+    
+    ldl33_up = new_ldl_matrix(ldl33_new.num_cols, ldl33_new.num_nonzeros);
+    ldl_transpose(ldl33_new, ldl33_up);   
+    
+    std::cout << "ldl33recomputed and transposed\n";
+    print_ldl_matrix(ldl33_up);
+    
 }
     
 
@@ -1893,6 +1900,9 @@ void test_delete_row_from_ldl_factor(){
     
     std::cout << "LDL with delted row and column and recomputed L33 part\n";
     print_ldl_matrix(ldlmt);
+    
+    delete_ldl_matrix(ldlm);
+    delete_ldl_matrix(ldlmt);
 }
 
 int main(int argc, char **argv) {
@@ -1900,11 +1910,11 @@ int main(int argc, char **argv) {
     //test_simplex_projection();
     
     //test_get_ldl33_up_from_ldl_l_upper();
-    test_recompute_l33_d33_for_ldl_col_del();
+    //test_recompute_l33_d33_for_ldl_col_del();
     
     //try_ldl_engine();
     //test_del_row_from_ldl_up();
     
-    //test_delete_row_from_ldl_factor();
+    test_delete_row_from_ldl_factor();
 }
 
