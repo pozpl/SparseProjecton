@@ -1884,7 +1884,7 @@ void test_delete_row_from_ldl_factor(){
         }
     }
     ldlm.Lp[cols - 1] = elts_num;
-    ldlm.Lp[cols] = elts_num; //This is bug, but I will dill with it
+    ldlm.Lp[cols] = elts_num; //This is bug, but I will deal with it
     
     std::cout << "Diag part\n";
     for (int i = 0; i < ldlm.num_cols; i++) {
@@ -1896,7 +1896,7 @@ void test_delete_row_from_ldl_factor(){
     std::cout << "LDL\n";
     print_ldl_matrix(ldlmt);
     
-    delete_col_from_ldl_factor(ldlmt, 0);
+    delete_col_from_ldl_factor(ldlmt, 2);
     
     std::cout << "LDL with delted row and column and recomputed L33 part\n";
     print_ldl_matrix(ldlmt);

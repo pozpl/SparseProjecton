@@ -466,12 +466,13 @@ void evalMuForSimplexCPUwithStoredMatrix(int basisInc, csr_matrix basis, csr_mat
         std::cout << "basisInc == 2 change sign of basis columns\n";        
     } else {
         std::cout << "basisInc == -1 del column from basis\n";
-        
+        std::cout << "del column with index " << delBasElIndx << " \n";
         //evalGrammMtxPart(basis_t, grammMatrParted);        
         downgradeGrammMtxPart(grammMatrParted, delBasElIndx);                
-        evalCholmodFactorTrans(grammMatrParted, grammPartFactor);
-        
-        evalGrammMtxPartTriangForm(basis_t, grammMatrParted);
+        //evalCholmodFactorTrans(grammMatrParted, grammPartFactor);
+        //evalGrammMtxPartTriangForm(basis_t, grammMatrParted);
+        std::cout << "grammPartFactor.num_rows =  " << grammPartFactor.num_rows << "grammPartFactor.num_cols =  " << grammPartFactor.num_cols << " \n";
+        delete_col_from_ldl_factor(grammPartFactor, delBasElIndx);
     }
 
     double *z_i = new_host_darray(basis.num_cols); //column of inverse matrix of gramm

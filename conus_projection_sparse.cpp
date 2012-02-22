@@ -2257,9 +2257,9 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     ldl_matrix ldl33_low = new_ldl_matrix(ldl33_up.num_cols, ldl33_up.num_nonzeros);
     ldl_transpose(ldl33_up, ldl33_low);
     
-    
+        
     int l32_id = del_col_idx;
-    int l32_dem = grammPartFactor.num_rows - (l32_id + 1);
+    int l32_dem = grammPartFactor.num_rows - (l32_id);
     double* dense_row = new_host_darray(l32_dem);
     get_ldl_dense_row_from_l_upper(grammPartFactor, l32_id, dense_row);
     

@@ -155,14 +155,14 @@ void get_ldl_dense_column_from_l_low(const ldl_matrix& ldl, int col_number, doub
 }
 
 void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row) {
-    for (int i = 0; i < row_index + 1; i++) {
+    for (int i = 0; i < row_index; i++) {
         dense_row[i] = 0.0;
     }
-    for (int i = 1; i < ldl.num_cols; i++) {
+    for (int i = row_index; i < ldl.num_cols; i++) {
         for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
-            //std::cout << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
+            //std::cout << "dense_row   " << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
             if (ldl.Li[j] == row_index) {
-                dense_row[i - 1] = ldl.Lx[j];
+                dense_row[i - row_index] = ldl.Lx[j];
             }
         }
     }
@@ -178,11 +178,14 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
             }
         }
     }
-
-    std::cout << "Elements in L33 = " << elemets_number << "\n";
-
+    
+    
+    print_ldl_matrix(ldl);
     int ldl33_max_dim = ldl.num_rows - row_start_idx;
+    
+    std::cout << "Elements in L33 = " << elemets_number << " ldl33 max dim = " << ldl33_max_dim << "ldl.num_rows = " << ldl.num_rows << "\n";
     //construct new ldl matrix with upper triangular form
+    if(elemets_number == 0){elemets_number++;} // trik for matrix to be st propertly
     ldl_matrix ldl33_up = new_ldl_matrix(ldl33_max_dim, elemets_number);
 
     //copy L^t_33 to L_33
@@ -293,6 +296,8 @@ void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33) {
             }
         }
     }
+    //insert diag part
+    memmove(&ldl.D[col_to_insert - 1], &ldl33.D[0], sizeof(double) * ldl33.num_cols);
 }
 
 /*
@@ -926,14 +931,15 @@ void add_col_to_ldl(ldl_matrix &ldl, coo_matrix &coo_col) {
         for (int coo_i = 0; coo_i < coo_col.num_nonzeros - 1; coo_i++) {
             ldl.Li[begin_idx + coo_i] = coo_col.I[coo_i];
             ldl.Lx[begin_idx + coo_i] = coo_col.V[coo_i];
-            if (coo_col.I[coo_i] + 1 > ldl.num_rows) {
-                ldl.num_rows = coo_col.J[coo_i] + 1;
-            }
+            //if (coo_col.I[coo_i] + 1 > ldl.num_rows) {
+            //    ldl.num_rows = coo_col.I[coo_i] + 1;
+            //}
         }
 
     }
 
     ldl.num_cols++;
+    ldl.num_rows = ldl.num_cols; //becouse of simmetry
     ldl.Lp[ldl.num_cols] = begin_idx + coo_col.num_nonzeros - 1;
     ldl.D[ldl.num_cols - 1] = coo_col.V[coo_col.num_nonzeros - 1];
 }
