@@ -1896,7 +1896,7 @@ void test_delete_row_from_ldl_factor(){
     std::cout << "LDL\n";
     print_ldl_matrix(ldlmt);
     
-    delete_col_from_ldl_factor(ldlmt, 2);
+    delete_col_from_ldl_factor(ldlmt, 1);
     
     std::cout << "LDL with delted row and column and recomputed L33 part\n";
     print_ldl_matrix(ldlmt);
@@ -1906,7 +1906,7 @@ void test_delete_row_from_ldl_factor(){
 }
 
 int main(int argc, char **argv) {
-    //prepare_matrix();//<int, double>();
+    //prepare_matrix();
     //test_simplex_projection();
     
     //test_get_ldl33_up_from_ldl_l_upper();

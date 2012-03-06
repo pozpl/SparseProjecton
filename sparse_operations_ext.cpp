@@ -155,14 +155,15 @@ void get_ldl_dense_column_from_l_low(const ldl_matrix& ldl, int col_number, doub
 }
 
 void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double*dense_row) {
-    for (int i = 0; i < row_index; i++) {
-        dense_row[i] = 0.0;
+    int row_dem = ldl.num_rows - (row_index + 1);
+    for (int col_i = 0; col_i < row_dem; col_i++) {
+        dense_row[col_i] = 0.0;
     }
-    for (int i = row_index; i < ldl.num_cols; i++) {
-        for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
+    for (int col_i = row_index; col_i < ldl.num_cols; col_i++) {
+        for (int col_j = ldl.Lp[col_i]; col_j < ldl.Lp[col_i + 1]; col_j++) {
             //std::cout << "dense_row   " << i << " " << ldl.Li[j] << " " << ldl.Lx[j] << "\n";
-            if (ldl.Li[j] == row_index) {
-                dense_row[i - row_index] = ldl.Lx[j];
+            if (ldl.Li[col_j] == row_index) {
+                dense_row[col_i - (row_index + 1)] = ldl.Lx[col_j];
             }
         }
     }
@@ -171,9 +172,9 @@ void get_ldl_dense_row_from_l_upper(const ldl_matrix& ldl, int row_index, double
 ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_idx) {
     //estimate elements number
     int elemets_number = 0;
-    for (int i = row_start_idx; i < ldl.num_cols; i++) {
-        for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
-            if (ldl.Li[j] >= row_start_idx) {
+    for (int col_i = row_start_idx; col_i < ldl.num_cols; col_i++) {
+        for (int row_j = ldl.Lp[col_i]; row_j < ldl.Lp[col_i + 1]; row_j++) {
+            if (ldl.Li[row_j] >= row_start_idx) {
                 elemets_number++;
             }
         }
@@ -192,12 +193,12 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
     ldl33_up.num_cols = ldl.num_cols - row_start_idx;
     ldl33_up.num_rows = ldl.num_rows - row_start_idx;
     elemets_number = 0;
-    for (int i = row_start_idx; i < ldl.num_cols; i++) {
-        ldl33_up.Lp[i - row_start_idx] = elemets_number;
-        for (int j = ldl.Lp[i]; j < ldl.Lp[i + 1]; j++) {
-            if (ldl.Li[j] >= row_start_idx) {
-                ldl33_up.Li[elemets_number] = ldl.Li[j] - row_start_idx;
-                ldl33_up.Lx[elemets_number] = ldl.Lx[j];
+    for (int col_i = row_start_idx; col_i < ldl.num_cols; col_i++) {
+        ldl33_up.Lp[col_i - row_start_idx] = elemets_number;
+        for (int row_j = ldl.Lp[col_i]; row_j < ldl.Lp[col_i + 1]; row_j++) {
+            if (ldl.Li[row_j] >= row_start_idx) {
+                ldl33_up.Li[elemets_number] = ldl.Li[row_j] - row_start_idx;
+                ldl33_up.Lx[elemets_number] = ldl.Lx[row_j];
                 ldl33_up.num_nonzeros++;
                 elemets_number++;
             }
