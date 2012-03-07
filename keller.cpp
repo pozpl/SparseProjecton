@@ -1896,7 +1896,7 @@ void test_delete_row_from_ldl_factor(){
     std::cout << "LDL\n";
     print_ldl_matrix(ldlmt);
     
-    delete_col_from_ldl_factor(ldlmt, 1);
+    delete_col_from_ldl_factor(ldlmt, 2);
     
     std::cout << "LDL with delted row and column and recomputed L33 part\n";
     print_ldl_matrix(ldlmt);

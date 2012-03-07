@@ -2274,7 +2274,7 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     std::cout << "ldl33recomputed\n";
     print_ldl_matrix(ldl33_up);
     
-    
+    std::cout << "Number of nonzeros elements in GRAMM_PART_FACTOR = " << grammPartFactor.num_nonzeros << "\n";
     //delete row and col from ldl matrix
     del_row_col_from_ldl_up(grammPartFactor, del_col_idx);
     

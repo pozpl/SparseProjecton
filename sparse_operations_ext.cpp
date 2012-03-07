@@ -317,12 +317,13 @@ void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx) {
         memmove(&ldl.Lx[col_begin], &ldl.Lx[col_end], sizeof (double) * (ldl.num_nonzeros - col_end));
         //memmove(&csr.Ap[row_to_del_idx], &csr.Ap[row_to_del_idx + 1], sizeof(int) * (csr.num_rows - (row_to_del_idx - 1)));
         int els_in_col = col_end - col_begin;
-        for (int i = del_idx; i < ldl.num_cols; i++) {
+        for (int i = del_idx + 1; i < ldl.num_cols; i++) {
             ldl.Lp[i] = ldl.Lp[i + 1] - els_in_col;
             //std::cout << "\ncsr.Ap[i + 1] " << csr.Ap[i + 1] << " i + 1 " <<  i + 1 << " \n";
         }
         ldl.Lp[ldl.num_cols] = 0;
-        ldl.num_nonzeros -= els_in_col;                
+        ldl.num_nonzeros -= els_in_col;  
+        
     }
     memmove(&ldl.Lp[del_idx], &ldl.Lp[del_idx + 1], sizeof (int) * (ldl.num_cols - del_idx ));
     ldl.num_cols--;
@@ -338,6 +339,7 @@ void del_row_from_ldl_up(ldl_matrix& ldl, int del_idx) {
             if (ldl.Li[row_i] == del_idx) {
                 //perfom shift
                 int num_els_in_tail = ldl.num_nonzeros - (row_i + 1);
+                std::cout << "Num elements in tail to mmove = " << num_els_in_tail << "\n";
                 memmove(&ldl.Li[row_i], &ldl.Li[row_i + 1], sizeof (int) * num_els_in_tail);
                 memmove(&ldl.Lx[row_i], &ldl.Lx[row_i + 1], sizeof (double) * num_els_in_tail);
                 ldl.num_nonzeros--;
@@ -935,6 +937,7 @@ void add_col_to_ldl(ldl_matrix &ldl, coo_matrix &coo_col) {
             //if (coo_col.I[coo_i] + 1 > ldl.num_rows) {
             //    ldl.num_rows = coo_col.I[coo_i] + 1;
             //}
+            ldl.num_nonzeros++;
         }
 
     }
