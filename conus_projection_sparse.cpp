@@ -2257,6 +2257,7 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     ldl_matrix ldl33_low = new_ldl_matrix(ldl33_up.num_cols, ldl33_up.num_nonzeros);
     ldl_transpose(ldl33_up, ldl33_low);
     
+    
         
     int l32_id = del_col_idx;
     int l32_dem = grammPartFactor.num_rows - (l32_id);
@@ -2278,11 +2279,14 @@ void delete_col_from_ldl_factor(ldl_matrix &grammPartFactor, int del_col_idx){
     //delete row and col from ldl matrix
     del_row_col_from_ldl_up(grammPartFactor, del_col_idx);
     
-    std::cout << "LDL with delted row and column\n";
+    std::cout << "LDL with delted row and column nonzeros = " << grammPartFactor.num_nonzeros << "\n ";
     print_ldl_matrix(grammPartFactor);
     
     //INSERT ldl33_up into main ldl_up
     insert_ldl33_up_into_ldl_up(grammPartFactor, ldl33_up);        
+    
+    std::cout << "LDL with inserted part num_nonzeros = "<< grammPartFactor.num_nonzeros <<" \n";
+    print_ldl_matrix(grammPartFactor);
     
     delete_ldl_matrix(ldl33_up);
     delete_ldl_matrix(ldl33_low);

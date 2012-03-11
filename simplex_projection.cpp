@@ -472,8 +472,15 @@ void evalMuForSimplexCPUwithStoredMatrix(int basisInc, csr_matrix basis, csr_mat
         //evalCholmodFactorTrans(grammMatrParted, grammPartFactor);
         //evalGrammMtxPartTriangForm(basis_t, grammMatrParted);
         
-        std::cout << "grammPartFactor.num_rows =  " << grammPartFactor.num_rows << "grammPartFactor.num_cols =  " << grammPartFactor.num_cols << " \n";
+        std::cout << "grammPartFactor.num_rows =  " << grammPartFactor.num_rows << "grammPartFactor.num_cols =  " << grammPartFactor.num_cols <<  "grammPartFactor.num_nonzeros =  " << grammPartFactor.num_nonzeros << " \n";
+        print_ldl_matrix(grammPartFactor);
+        
         delete_col_from_ldl_factor(grammPartFactor, delBasElIndx);
+        
+        ////////////TEST!!!!!!!!!!!!!!!!!!!!!!!!
+        evalCholmodFactorTrans(grammMatrParted, grammPartFactor);
+        std::cout << "RECOMPUTED MATRIX!!!\n";
+        print_ldl_matrix(grammPartFactor);
     }
 
     double *z_i = new_host_darray(basis.num_cols); //column of inverse matrix of gramm

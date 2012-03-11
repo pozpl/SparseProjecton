@@ -181,10 +181,9 @@ ldl_matrix get_ldl33_up_from_ldl_l_upper(const ldl_matrix& ldl, int row_start_id
     }
     
     
-    print_ldl_matrix(ldl);
     int ldl33_max_dim = ldl.num_rows - row_start_idx;
     
-    std::cout << "Elements in L33 = " << elemets_number << " ldl33 max dim = " << ldl33_max_dim << "ldl.num_rows = " << ldl.num_rows << "\n";
+    std::cout << "Elements in L33 = " << elemets_number << " ldl33 max dim = " << ldl33_max_dim << " ldl.num_rows = " << ldl.num_rows << "\n";
     //construct new ldl matrix with upper triangular form
     if(elemets_number == 0){elemets_number++;} // trik for matrix to be st propertly
     ldl_matrix ldl33_up = new_ldl_matrix(ldl33_max_dim, elemets_number);
@@ -282,7 +281,9 @@ void insert_ldl33_up_into_ldl_up(ldl_matrix& ldl, ldl_matrix ldl33) {
                 int ldl33_row_begin = ldl33.Lp[ldl33_col_i];
                 memmove(&ldl.Li[row_i], &ldl33.Li[ldl33_row_begin], sizeof (int) * ldl33.Lnz[ldl33_col_i]);
                 memmove(&ldl.Lx[row_i], &ldl33.Lx[ldl33_row_begin], sizeof (double) * ldl33.Lnz[ldl33_col_i]);
-
+                
+                ldl.num_nonzeros += shift_elems;
+                
                 //correct Lp values for subsequent elements
                 for (int col_tail_i = col_i + 1; col_tail_i < ldl.num_cols + 1; col_tail_i++) {
                     ldl.Lp[col_tail_i] += shift_elems;
