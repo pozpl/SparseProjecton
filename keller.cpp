@@ -1907,7 +1907,7 @@ void test_delete_row_from_ldl_factor(){
 
 int main(int argc, char **argv) {
     //prepare_matrix();
-    //test_simplex_projection();
+    test_simplex_projection();
     
     //test_get_ldl33_up_from_ldl_l_upper();
     //test_recompute_l33_d33_for_ldl_col_del();
@@ -1915,6 +1915,6 @@ int main(int argc, char **argv) {
     //try_ldl_engine();
     //test_del_row_from_ldl_up();
     
-    test_delete_row_from_ldl_factor();
+    //test_delete_row_from_ldl_factor();
 }
 

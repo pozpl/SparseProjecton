@@ -471,6 +471,7 @@ void evalMuForSimplexCPUwithStoredMatrix(int basisInc, csr_matrix basis, csr_mat
         downgradeGrammMtxPart(grammMatrParted, delBasElIndx);                
         //evalCholmodFactorTrans(grammMatrParted, grammPartFactor);
         //evalGrammMtxPartTriangForm(basis_t, grammMatrParted);
+        
         std::cout << "grammPartFactor.num_rows =  " << grammPartFactor.num_rows << "grammPartFactor.num_cols =  " << grammPartFactor.num_cols << " \n";
         delete_col_from_ldl_factor(grammPartFactor, delBasElIndx);
     }

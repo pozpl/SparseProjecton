@@ -310,24 +310,27 @@ void change_ldl_33_up(ldl_matrix& ldl, ldl_matrix ldl33_up) {
 }
 
 void del_col_from_ldl_up(ldl_matrix& ldl, int del_idx) {
-    if (del_idx != 0) {
-        int col_begin = ldl.Lp[del_idx];
-        int col_end = ldl.Lp[del_idx + 1];
-        memmove(&ldl.Li[col_begin], &ldl.Li[col_end], sizeof (int) * (ldl.num_nonzeros - col_end));
-        memmove(&ldl.Lx[col_begin], &ldl.Lx[col_end], sizeof (double) * (ldl.num_nonzeros - col_end));
-        //memmove(&csr.Ap[row_to_del_idx], &csr.Ap[row_to_del_idx + 1], sizeof(int) * (csr.num_rows - (row_to_del_idx - 1)));
-        int els_in_col = col_end - col_begin;
-        for (int i = del_idx + 1; i <= ldl.num_cols; i++) {
-            std::cout << "Elements in del cplumn = " << els_in_col << " \n";
-            ldl.Lp[i] = ldl.Lp[i] - els_in_col;
-            std::cout << "ldl.Lp[" << i << "] = " << ldl.Lp[i] << " \n";
+    if (del_idx < ldl.num_cols - 1) {
+        if (del_idx != 0) {
+            int col_begin = ldl.Lp[del_idx];
+            int col_end = ldl.Lp[del_idx + 1];
+            
+            memmove(&ldl.Li[col_begin], &ldl.Li[col_end], sizeof (int) * (ldl.num_nonzeros - col_end));
+            memmove(&ldl.Lx[col_begin], &ldl.Lx[col_end], sizeof (double) * (ldl.num_nonzeros - col_end));
+            
+            int els_in_col = col_end - col_begin;
+            for (int i = del_idx + 1; i <= ldl.num_cols; i++) {
+                std::cout << "Elements in del cplumn = " << els_in_col << " \n";
+                ldl.Lp[i] = ldl.Lp[i] - els_in_col;
+                std::cout << "ldl.Lp[" << i << "] = " << ldl.Lp[i] << " \n";
+            }
+            //ldl.Lp[ldl.num_cols] = 0;
+            ldl.num_nonzeros -= els_in_col;
         }
-        //ldl.Lp[ldl.num_cols] = 0;
-        ldl.num_nonzeros -= els_in_col;  
         
+        std::cout << "move el with index L[" << del_idx << "] = " << ldl.Lp[del_idx] << "  to  " << ldl.Lp[del_idx + 1] << "\n";
+        memmove(&ldl.Lp[del_idx], &ldl.Lp[del_idx + 1], sizeof (int) * (ldl.num_cols - del_idx));
     }
-    std::cout << "move el with index L[" <<  del_idx << "] = "<< ldl.Lp[del_idx] << "  to  " << ldl.Lp[del_idx + 1] << "\n";
-    memmove(&ldl.Lp[del_idx], &ldl.Lp[del_idx + 1], sizeof (int) * (ldl.num_cols - del_idx ));
     ldl.num_cols--;
 }
 
