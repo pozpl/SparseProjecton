@@ -477,10 +477,28 @@ void evalMuForSimplexCPUwithStoredMatrix(int basisInc, csr_matrix basis, csr_mat
         
         delete_col_from_ldl_factor(grammPartFactor, delBasElIndx);
         
-        ////////////TEST!!!!!!!!!!!!!!!!!!!!!!!!
-        evalCholmodFactorTrans(grammMatrParted, grammPartFactor);
-        std::cout << "RECOMPUTED MATRIX!!!\n";
-        print_ldl_matrix(grammPartFactor);
+        //////////////////TEST//////////
+        
+        ldl_matrix grammPartFactor_CHK;
+        grammPartFactor_CHK.D = new_host_darray(grammPartFactor.num_cols);
+        grammPartFactor_CHK.Lp = new_host_iarray(grammPartFactor.num_cols);        
+        grammPartFactor_CHK.Li = new_host_iarray(grammPartFactor.num_nonzeros);
+        grammPartFactor_CHK.Lx = new_host_darray(grammPartFactor.num_nonzeros);
+        grammPartFactor_CHK.Lnz = new_host_iarray(grammPartFactor.num_cols);
+        grammPartFactor_CHK.Parent = new_host_iarray(grammPartFactor.num_cols);
+        //evalGrammMtxPart(basis_t, grammMatrParted);        
+        evalCholmodFactor(grammMatrParted, grammPartFactor_CHK);
+        //std::cout << "rows: " << grammPartFactor_CHK.num_rows << " columns: " <<grammPartFactor_CHK.num_cols <<"\n";
+        for (int i = 0; i < grammPartFactor_CHK.num_rows; i++) {
+                for (int j = grammPartFactor_CHK.Lp[i]; j < grammPartFactor_CHK.Lp[i + 1]; j++) {
+                    if(fabs(grammPartFactor.Lx[j] - grammPartFactor_CHK.Lx[j]) > 0.00001 ){
+                        std::cout << "Lx is diffrent!!!!  "<< i << " " << grammPartFactor_CHK.Li[j] << " CHK= " << grammPartFactor_CHK.Lx[j] << " orig=" <<  grammPartFactor.Lx[j] << "\n";
+                    }
+                    //std::cout << i << " " << grammPartFactor_CHK.Li[j] << " " << grammPartFactor_CHK.Lx[j] << "\n";
+                }
+        }
+        delete_ldl_matrix(grammPartFactor_CHK);
+        
     }
 
     double *z_i = new_host_darray(basis.num_cols); //column of inverse matrix of gramm
